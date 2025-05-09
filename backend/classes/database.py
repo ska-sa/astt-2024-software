@@ -1,6 +1,8 @@
 import os
-from dotenv import load_dotenv
+from dotenv import load_dotenv, set_key
 import sqlite3
+import fastapi
+
 
 class Database:
     def __init__(self) -> None:
@@ -22,30 +24,30 @@ class Database:
         """)
         self.conn.commit()
 
-    def insert(self, table_name: str, data: dict) -> bool:
+    def insert(self, table_name: str, data: dict) -> tuple[bool, list]:
         try:
             columns = ', '.join([f"`{key}`" for key in data.keys()])
             placeholders = ', '.join(['?' for _ in data])
             sql = f"INSERT INTO `{table_name}` ({columns}) VALUES ({placeholders})"
             self.cur.execute(sql, list(data.values()))
             self.conn.commit()
-            return True
+            return (True, [data])
         except sqlite3.IntegrityError as e:
             print(f"Error inserting data: {e}")
-            return False
+            return (False, [])
 
-    def delete(self, table_name: str, criteria: dict) -> bool:
+    def delete(self, table_name: str, criteria: dict) -> tuple[bool, list]:
         try:
             where_clause = ' AND '.join([f"`{key}` = ?" for key in criteria])
             sql = f"DELETE FROM `{table_name}` WHERE {where_clause}"
             self.cur.execute(sql, list(criteria.values()))
             self.conn.commit()
-            return True
+            return (True, [criteria])
         except sqlite3.Error as e:
             print(f"Error deleting data: {e}")
-            return False
+            return (False, [])
 
-    def read(self, table_name: str, criteria: dict = None, limit: int = None, offset: int = None) -> list:
+    def read(self, table_name: str, criteria: dict = None, limit: int = None, offset: int = None) -> tuple[bool, list]:
         try:
             where_clause = ' AND '.join([f"`{key}` = ?" for key in criteria]) if criteria else ""
             limit_clause = f"LIMIT {limit}" if limit else ""
@@ -55,33 +57,33 @@ class Database:
                   (f"{limit_clause} " if limit_clause else "") + \
                   (f"{offset_clause}" if offset_clause else "")
             self.cur.execute(sql, list(criteria.values()) if criteria else [])
-            return self.cur.fetchall()
+            return (True, self.cur.fetchall())
         except sqlite3.Error as e:
             print(f"Error reading data: {e}")
-            return []
+            return (False, [])
 
-    def read_range(self, table_name: str, min_id: int, max_id: int) -> list:
+    def read_range(self, table_name: str, min_id: int, max_id: int) -> tuple[bool, list]:
         try:
             sql = f"SELECT * FROM `{table_name}` WHERE `id` BETWEEN ? AND ?"
             self.cur.execute(sql, (min_id, max_id))
-            return self.cur.fetchall()
+            return (True, self.cur.fetchall())
         except sqlite3.Error as e:
             print(f"Error reading data: {e}")
-            return []
+            return (False, [])
 
-    def update(self, table_name: str, data: dict, criteria: dict) -> bool:
+    def update(self, table_name: str, data: dict, criteria: dict) -> tuple[bool, list]:
         try:
             set_clause = ', '.join([f"`{key}` = ?" for key in data])
             where_clause = ' AND '.join([f"`{key}` = ?" for key in criteria])
             sql = f"UPDATE `{table_name}` SET {set_clause} WHERE {where_clause}"
             self.cur.execute(sql, list(data.values()) + list(criteria.values()))
             self.conn.commit()
-            return True
+            return (True, [data])
         except sqlite3.Error as e:
             print(f"Error updating data: {e}")
-            return False
+            return (False, [])
 
-    def clear(self) -> bool:
+    def clear(self) -> tuple[bool, list]:
         if self.name not in ['production', 'development']:
             try:
                 # Drop all tables
@@ -91,19 +93,45 @@ class Database:
                 self.conn.commit()
                 # Recreate tables
                 self.create_tables()
-                return True
+                return (True, [])
             except sqlite3.Error as e:
                 print(f"Error clearing the database: {e}")
-                return False
-        return False
+                return (False, [])
+        return (False, [])
 
     def __del__(self):
         self.conn.close()
 
 
+def main() -> None:
+    from user import User
+    #load_dotenv()
+    #set_key("", "testing")
+    db = Database()
+    print()
+
+    # Insert new data
+    db_insert_status, db_insert_output = db.insert('user', {'email_address': 'shlabisa@sarao.ac.za', 'password': 'pass'})
+    print("Insert", db_insert_status, db_insert_output)
+    print()
+    
+    # Read users from db
+    db_read_status, db_read_output = db.read('user')
+    print("Read", db_read_status, db_read_output)
+    print()
+    user = User(*db_read_output[0])
+
+    # Update user
+    user_dict: dict = user.__dict__
+    user_dict["password"] = "pass-updated"
+    db_update_status, db_update_output = db.update('user', user_dict, {'id': user.id})
+    print("Update", db_update_status, db_update_output)
+    print()
+    
+    db_delete_status, db_delete_output = db.delete('user', {'id': user.id})
+    print("Delete", db_delete_status, db_delete_output)
+    print()
+
 # Example usage:
-db = Database()
-db.insert('user', {'email_address': 'shlabisa@sarao.ac.za', 'password': 'pass'})
-print(db.read('user'))
-db.update('user', {'password': 'pass'}, {'password': 'pass-updated'})
-db.delete('user', {'password': 'pass-updated'})
+if __name__ == "__main__":
+    main()
