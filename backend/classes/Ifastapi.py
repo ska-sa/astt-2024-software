@@ -32,6 +32,7 @@ def update_task(task_id: int, updated_task: Task):
         return updated_task
     else:
         raise HTTPException(status_code=404, detail="Task not found")
+    
 @app.delete("/tasks/{task_id}", response_model=Task)
 def delete_task(task_id: int):
     if 0 <= task_id < len(tasks):
