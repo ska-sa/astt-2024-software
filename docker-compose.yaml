@@ -1,0 +1,20 @@
+version: '3.8'
+services:
+  astt-software-backend-service:
+      container_name: astt-software-backend-container
+      image: astt-software-backend-image
+      build:
+        context: ./backend
+        dockerfile: Dockerfile
+      ports:
+        - "5000:5000"
+  astt-software-frontend-service:
+    container_name: astt-software-frontend-contaier
+    image: :astt-software-frontend-image
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "80:4300"
+    depends_on:
+      - astt-software-backend-service
