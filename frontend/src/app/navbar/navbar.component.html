@@ -1,25 +1,55 @@
-<div class="d-flex justify-content-between py-2" style="border-bottom: 1px solid black;">
-    <img width="100px" src="assets/sarao-logo.png" alt="South African Radio Astronomy Observertory Logo">
-    <span class="text-end">
-        <a class="px-1" routerLink="home">
-            <i class="fa-regular fa-house"></i>
-            <span>Home</span>
-        </a>
-        <a class="px-1" routerLink="cam">
-            <i class="fa-regular fa-joystick"></i>
-            <span>Control and Monitoring</span>
-        </a>
-        <a class="px-1" routerLink="commands">
-            <i class="fa-solid fa-terminal"></i>
-            <span>Commands</span>
-        </a>
-        <a class="px-1" routerLink="readings">
-            <i class="fa-solid fa-book"></i>
-            <span>Readings</span>
-        </a>
+<nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+  <div class="container-fluid">
+    <button
+      class="navbar-toggler"
+      type="button"
+      (click)="toggleNavbar()"
+      aria-controls="navbarNav"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <a class="navbar-brand" routerLink="home" routerLinkActive="active">
+      <img src="assets/sarao-logo.png" alt="South African Radio Astronomy Observatory Logo" width="100" />
+    </a>
+    <div class="collapse navbar-collapse" [ngClass]="{ 'show': isNavbarCollapsed }">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="home" routerLinkActive="active">
+            <i class="fa fa-home fa-fw"></i>
+            &nbsp;
+            <span [ngClass]="{ 'font-weight-bold': isActiveRoute('home') }">Home</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="cam" routerLinkActive="active">
+            <i class="fa fa-gamepad fa-fw" aria-hidden="true"></i>
+            &nbsp;
+            <span [ngClass]="{ 'font-weight-bold': isActiveRoute('cam') }">Control and Monitoring</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="commands" routerLinkActive="active">
+            <i class="fa-solid fa-terminal fa-fw"></i>
+            &nbsp;
+            <span [ngClass]="{ 'font-weight-bold': isActiveRoute('commands') }">Commands</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="readings" routerLinkActive="active">
+            <i class="fa-solid fa-book fa-fw"></i>
+            &nbsp;
+            <span [ngClass]="{ 'font-weight-bold': isActiveRoute('readings') }">Readings</span>
+          </a>
+        </li>
+      </ul>
+      <div class="d-flex align-items-center justify-content-end">
         <button class="btn btn-danger">
-            <i class="fa-solid fa-arrow-right-from-bracket"></i>
-            <span class="px-1">Sign Out</span>
+          <i class="fa-solid fa-arrow-right-from-bracket fa-fw"></i>
+          <span class="px-1 font-weight-bold">Sign Out</span>
         </button>
-    </span>
-</div>
+      </div>
+    </div>
+  </div>
+</nav>
