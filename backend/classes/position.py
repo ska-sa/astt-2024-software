@@ -1,8 +1,8 @@
 from datetime import datetime
 from pydantic import BaseModel
-
-class User(BaseModel):
+#ToDo
+class  Position(BaseModel):
     id: int
-    email_address: str
-    password: str
     created_at: datetime
+    datetime: datetime
+    

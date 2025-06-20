@@ -1,8 +1,8 @@
 from datetime import datetime
 from pydantic import BaseModel
 
-class User(BaseModel):
+class Telescope(BaseModel):
     id: int
-    email_address: str
-    password: str
+    name: str
+    health_status: str #status
     created_at: datetime
