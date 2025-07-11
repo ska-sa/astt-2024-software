@@ -11,7 +11,7 @@ app = FastAPI()
 def get_users_endpoint():
     return get_users()
 
-# curl -X POST -H "Content-Type: application/json" -d '{"email_address": "shlabisa@sarao.ac.za", "password": "hlabisa"}' "http://127.0.0.1:8000/api/v1/users"
+# curl -X POST -H "Content-Type: application/json" -d '{"email_address": "ska@sarao.ac.za", "password": "hlabisa"}' "http://127.0.0.1:8000/api/v1/users"
 @app.post(f"{BASE_URL}/users", response_model=User)
 def post_users_endpoint(user_dict: dict):
     return post_user(user_dict)
