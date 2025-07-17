@@ -4,7 +4,7 @@ from endpoints.users import get_users, post_user, get_user, delete_user, update_
 import uvicorn
 
 BASE_URL = "/api/v1"
-app = FastAPI()
+app = FastAPI(docs_url="/doc")
 
 # curl -X GET -H "Content-Type: application/json" -d '{}' "http://127.0.0.1:8000/api/v1/users"
 @app.get(f"{BASE_URL}/users", response_model=list[User])
