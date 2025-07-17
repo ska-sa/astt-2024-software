@@ -1,3 +1,4 @@
+from fastapi import HTTPException
 from classes.user import User
 from datetime import datetime
 from classes import Database
