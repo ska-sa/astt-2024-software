@@ -1,0 +1,50 @@
+<ng-container *ngIf="!isLoading">
+  <table class="mt-5 table table-hover text-center">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Telescope Name</th>
+        <th scope="col">Health Status</th>
+        <th scope="col">Created At</th>
+        <th scope="col">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td></td>
+        <td>
+          <input class="form-control" type="text" placeholder="Enter telescope name..." [(ngModel)]="newTelescopeName">
+        </td>
+        <td></td>
+        <td></td>
+        <td class="text-end">
+          <button class="btn btn-outline-success" (click)="addTelescope()">
+            <i class="fa fa-plus fa-fw"></i>
+            <span class="ms-2 d-none d-md-inline mx-1">Add</span>
+          </button>
+        </td>
+      </tr>
+      <tr *ngFor="let telescope of telescopes; let i = index">
+        <th> {{ i + 1 }}</th>
+        <td> {{ telescope.name }} </td>
+        <td> {{ telescope.health_status }} </td>
+        <td> {{ telescope.created_at | date }}</td>
+        <td class="text-end">
+          <button class="btn btn-outline-primary mx-1" (click)="controlTelescope(telescope.id)">
+            <i class="fa-solid fa-gamepad fa-fw"></i>
+            <span  class="ms-2 d-none d-md-inline">Control</span>
+          </button>
+          <button class="btn btn-outline-secondary mx-1" (click)="editTelescope(telescope.id)">
+            <i class="fa-solid fa-pen fa-fw"></i>
+            <span  class="ms-2 d-none d-md-inline">Edit</span>
+          </button>
+          <button class="btn btn-outline-danger mx-1" (click)="deleteTelescope(telescope.id)">
+            <i class="fa-solid fa-trash fa-fw"></i>
+            <span  class="ms-2 d-none d-md-inline">Delete</span>
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</ng-container>
+<router-outlet></router-outlet>
