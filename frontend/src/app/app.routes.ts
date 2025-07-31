@@ -38,6 +38,12 @@ export const routes: Routes = [
                     },
                 ]
             },
+            {
+                path: 'commands', component: CommandsComponent
+            },
+            {
+                path: 'readings', component: ReadingsComponent
+            },
             { 
                 path: 'users', component: UsersComponent, children: [
                     {
