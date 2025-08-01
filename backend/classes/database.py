@@ -1,8 +1,8 @@
+from datetime import datetime
 import os
 from dotenv import load_dotenv, set_key
 import sqlite3
 import fastapi
-
 
 class Database:
     def __init__(self) -> None:
@@ -99,10 +99,6 @@ class Database:
                 return (False, [])
         return (False, [])
 
-    def __del__(self):
-        self.conn.close()
-
-
 def main() -> None:
     from user import User
     #load_dotenv()
@@ -111,15 +107,20 @@ def main() -> None:
     print()
 
     # Insert new data
-    db_insert_status, db_insert_output = db.insert('user', {'email_address': 'shlabisa@sarao.ac.za', 'password': 'pass'})
+    db_insert_status, db_insert_output = db.insert('user', {'email_address': 'shlabisa@sa', 'password': 'pass'})
     print("Insert", db_insert_status, db_insert_output)
     print()
     
     # Read users from db
     db_read_status, db_read_output = db.read('user')
     print("Read", db_read_status, db_read_output)
-    print()
-    user = User(*db_read_output[0])
+    print(*db_read_output[0])
+    id, email_address, password, created_at = db_read_output[0]
+    print(User(id=1,
+                email_address="snyide@gmail.com",
+                password="snyide",
+                created_at=datetime.now()))
+    user = User(id= int(id), email_address =str(email_address), password=str(password), created_at= datetime.strptime(str(created_at), "%Y-%m-%d %H:%M:%S"))
 
     # Update user
     user_dict: dict = user.__dict__
