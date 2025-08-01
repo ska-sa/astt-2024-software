@@ -21,6 +21,12 @@ class Database:
                 `password` TEXT,
                 `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
             );
+            CREATE TABLE IF NOT EXISTS telescope(
+                `id` INTEGER PRIMARY KEY AUTOINCREMENT,
+                `name` TEXT UNIQUE,
+                `health_status` TEXT,
+                `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
+            );                   
         """)
         self.conn.commit()
 
