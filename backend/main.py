@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from classes.user import User
 from classes.telescope import Telescope
 from endpoints.users import get_users, post_user, get_user, delete_user, update_user
@@ -7,6 +8,18 @@ import uvicorn
 
 BASE_URL = "/api/v1"
 app = FastAPI()
+
+origins = [
+    "http://localhost:4200",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,  # Allow cookies, authorization headers, etc.
+    allow_methods=["*"],     # Allow all HTTP methods (GET, POST, PUT, DELETE, etc.)
+    allow_headers=["*"],     # Allow all headers
+)
 
 # curl -X GET -H "Content-Type: application/json" -d '{}' "http://127.0.0.1:8000/api/v1/users"
 @app.get(f"{BASE_URL}/users", response_model=list[User])
