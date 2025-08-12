@@ -1,5 +1,5 @@
 from fastapi import HTTPException
-from classes.user import User
+from classes.user import CreateUser, User
 from datetime import datetime
 from classes import Database
 
@@ -17,10 +17,10 @@ def get_users() -> list[User]:
 
     return users
 
-def post_user(user_dict: dict) -> User:
+def post_user(user: CreateUser) -> User:
     # Insert new user data
     db = Database()
-    _, _ = db.insert(table_name, user_dict)
+    _, _ = db.insert(table_name, user.__dict__)
 
     # Read newly inserted user from db
     _, db_select_user_outputs = db.read(table_name, criteria=user_dict)
@@ -37,6 +37,16 @@ def get_user(user_id: int) -> User:
         return User(id=int(id), email_address=str(email_address), password=str(password), created_at=datetime.strptime(str(created_at), datetime_format_str))
     else:
         return None
+
+def auth_user(user: CreateUser) -> User:
+    # Authenticate user by email and password
+    db = Database()
+    _, db_select_user_outputs = db.read(table_name, criteria={'email_address': user.email_address, 'password': user.password})
+    if db_select_user_outputs:
+        id, email_address, password, created_at = db_select_user_outputs[0]
+        return User(id=int(id), email_address=str(email_address), password=str(password), created_at=datetime.strptime(str(created_at), datetime_format_str))
+    else:
+        raise HTTPException(status_code=401, detail="Invalid email or password.")
 
 def delete_user(user_id: int) -> User:
     # Delete user from db by id

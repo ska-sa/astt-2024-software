@@ -1,8 +1,8 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from classes.user import User
+from classes.user import CreateUser, User
 from classes.telescope import Telescope
-from endpoints.users import get_users, post_user, get_user, delete_user, update_user
+from endpoints.users import get_users, post_user, get_user, auth_user, delete_user, update_user
 from endpoints.telescopes import get_telescopes, post_telescope, get_telescope, delete_telescope, update_telescope
 import uvicorn
 
@@ -28,13 +28,18 @@ def get_users_endpoint():
 
 # curl -X POST -H "Content-Type: application/json" -d '{"email_address": "ska@sarao.ac.za", "password": "hlabisa"}' "http://127.0.0.1:8000/api/v1/users"
 @app.post(f"{BASE_URL}/users", response_model=User)
-def post_users_endpoint(user_dict: dict):
-    return post_user(user_dict)
+def post_users_endpoint(user: CreateUser):
+    return post_user(user)
 
 # curl -X GET -H "Content-Type: application/json" -d '{}' "http://127.0.0.1:8000/api/v1/users/1"
 @app.get(f"{BASE_URL}/users/{{user_id}}", response_model=User)
 def get_user_endpoint(user_id: int):
     return get_user(user_id)
+
+# curl -X POST -H "Content-Type: application/json" -d '{"email_address": "test@git.com", "password": "test123"}' "http://127.0.1:8000/api/v1/users/auth"
+@app.post(f"{BASE_URL}/users/auth", response_model=User)
+def auth_user_endpoint(user: CreateUser):
+    return auth_user(user)
 
 # curl -X DELETE -H "Content-Type: application/json" -d '{}' "http://127.0.0.1:8000/api/v1/users/1"
 @app.delete(f"{BASE_URL}/users/{{user_id}}", response_model=User)
