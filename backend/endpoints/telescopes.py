@@ -13,6 +13,9 @@ def get_telescopes() -> list[Telescope]:
     telescopes = []
     for db_select_telescope_output in db_select_telescope_outputs:
         id, name, health_status, created_at = db_select_telescope_output
+        if str(created_at).find("T") != -1:
+            created_at = created_at.replace("T", " ")
+            
         telescopes.append(Telescope(id=int(id), name=str(name), health_status=str(health_status), created_at=datetime.strptime(str(created_at), datetime_format_str)))
 
     return telescopes
@@ -26,6 +29,7 @@ def post_telescope(telescope_dict: dict) -> Telescope:
     _, db_select_telescope_outputs = db.read(table_name, criteria=telescope_dict)
     id, name, health_status, created_at = db_select_telescope_outputs[-1]
 
+    print(f"Created telescope: {created_at}")
     return Telescope(id=int(id), name=str(name), health_status=str(health_status), created_at=datetime.strptime(str(created_at), datetime_format_str))
 
 def get_telescope(telescope_id: int) -> Telescope:
@@ -60,6 +64,8 @@ def update_telescope(telescope_id: int, telescope_dict: dict) -> Telescope:
     if success:
         _, db_select_telescope_outputs = db.read(table_name, criteria={'id': telescope_id})
         id, name, health_status, created_at = db_select_telescope_outputs[0]
+        if str(created_at).find("T") != -1:
+            created_at = created_at.replace("T", " ")
         return Telescope(id=int(id), name=str(name), health_status=str(health_status), created_at=datetime.strptime(str(created_at), datetime_format_str))
     else:
         return None
