@@ -1,6 +1,11 @@
 from datetime import datetime
 from pydantic import BaseModel
 
-class Source(BaseModel):
-    id: int
+class CreateSource(BaseModel):
     name: str
+
+class Source(CreateSource):
+    id: int
+
+    class Config:
+        from_attributes = True

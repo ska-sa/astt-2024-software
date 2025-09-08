@@ -1,5 +1,5 @@
 from fastapi import HTTPException
-from classes.telescope import Telescope
+from classes.telescope import CreateTelescope, Telescope
 from datetime import datetime
 from classes import Database
 
@@ -20,13 +20,13 @@ def get_telescopes() -> list[Telescope]:
 
     return telescopes
 
-def post_telescope(telescope_dict: dict) -> Telescope:
+def post_telescope(telescope: CreateTelescope) -> Telescope:
     # Insert new telescope data
     db = Database()
-    _, _ = db.insert(table_name, telescope_dict)
+    _, _ = db.insert(table_name, telescope.__dict__)
 
     # Read newly inserted telescope from db
-    _, db_select_telescope_outputs = db.read(table_name, criteria=telescope_dict)
+    _, db_select_telescope_outputs = db.read(table_name, criteria=telescope.__dict__)
     id, name, health_status, created_at = db_select_telescope_outputs[-1]
 
     print(f"Created telescope: {created_at}")
@@ -57,10 +57,10 @@ def delete_telescope(telescope_id: int) -> Telescope:
     else:
         raise HTTPException(status_code=404, detail=f"Telescope with ID {telescope_id} not found.")
 
-def update_telescope(telescope_id: int, telescope_dict: dict) -> Telescope:
+def update_telescope(telescope_id: int, telescope: Telescope) -> Telescope:
     # Update telescope in db by id
     db = Database()
-    success, _ = db.update(table_name, criteria={'id': telescope_id}, data=telescope_dict)
+    success, _ = db.update(table_name, criteria={'id': telescope_id}, data=telescope.__dict__)
     if success:
         _, db_select_telescope_outputs = db.read(table_name, criteria={'id': telescope_id})
         id, name, health_status, created_at = db_select_telescope_outputs[0]
