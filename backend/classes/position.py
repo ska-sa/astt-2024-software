@@ -1,8 +1,12 @@
 from datetime import datetime
 from pydantic import BaseModel
-#ToDo
-class  Position(BaseModel):
+
+class CreatePosition(BaseModel):
+    datetime : datetime
+
+class Position(CreatePosition):
     id: int
     created_at: datetime
-    datetime: datetime
-    
+
+    class Config:
+        from_attribute = True    

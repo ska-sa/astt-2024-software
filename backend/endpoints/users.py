@@ -7,7 +7,6 @@ table_name: str = 'user'
 datetime_format_str: str = '%Y-%m-%d %H:%M:%S'
 
 def get_users() -> list[User]:
-    # Read users from db
     db = Database()
     _, db_select_user_outputs = db.read(table_name)
     users = []
@@ -21,11 +20,9 @@ def post_user(user: CreateUser) -> User:
     # Insert new user data
     db = Database()
     _, _ = db.insert(table_name, user.__dict__)
-
     # Read newly inserted user from db
-    _, db_select_user_outputs = db.read(table_name, criteria=user_dict)
+    _, db_select_user_outputs = db.read(table_name, criteria=user.__dict__)
     id, email_address, password, created_at = db_select_user_outputs[-1]
-
     return User(id=int(id), email_address=str(email_address), password=str(password), created_at=datetime.strptime(str(created_at), datetime_format_str))
 
 def get_user(user_id: int) -> User:
@@ -63,13 +60,15 @@ def delete_user(user_id: int) -> User:
     else:
         raise HTTPException(status_code=404, detail=f"User with ID {user_id} not found.")
 
-def update_user(user_id: int, user_dict: dict) -> User:
+def update_user(user_id: int, user: User) -> User:
     # Update user in db by id
     db = Database()
-    success, _ = db.update(table_name, criteria={'id': user_id}, data=user_dict)
+    success, _ = db.update(table_name, criteria={'id': user_id}, data=user.__dict__)
     if success:
         _, db_select_user_outputs = db.read(table_name, criteria={'id': user_id})
         id, email_address, password, created_at = db_select_user_outputs[0]
+        if str(created_at).find("T") != -1:
+            created_at = created_at.replace("T", " ")
         return User(id=int(id), email_address=str(email_address), password=str(password), created_at=datetime.strptime(str(created_at), datetime_format_str))
     else:
         return None

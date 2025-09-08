@@ -2,7 +2,6 @@ from datetime import datetime
 import os
 from dotenv import load_dotenv, set_key
 import sqlite3
-import fastapi
 
 class Database:
     def __init__(self) -> None:
@@ -12,22 +11,52 @@ class Database:
         self.conn = sqlite3.connect(self.name, check_same_thread=False)
         self.cur = self.conn.cursor()
         self.create_tables()
-
     def create_tables(self) -> None:
         self.cur.executescript("""
-            CREATE TABLE IF NOT EXISTS user(
-                `id` INTEGER PRIMARY KEY AUTOINCREMENT,
-                `email_address` TEXT UNIQUE,
-                `password` TEXT,
-                `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
-            );
-            CREATE TABLE IF NOT EXISTS telescope(
-                `id` INTEGER PRIMARY KEY AUTOINCREMENT,
-                `name` TEXT UNIQUE,
-                `health_status` TEXT,
-                `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
-            );                   
-        """)
+        CREATE TABLE IF NOT EXISTS user(
+            `id` INTEGER PRIMARY KEY AUTOINCREMENT,
+            `email_address` TEXT UNIQUE,
+            `password` TEXT,
+            `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE TABLE IF NOT EXISTS telescope(
+            `id` INTEGER PRIMARY KEY AUTOINCREMENT,
+            `name` TEXT UNIQUE,
+            `health_status` TEXT,
+            `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE TABLE IF NOT EXISTS reading(
+            `id` INTEGER PRIMARY KEY AUTOINCREMENT,
+            `telescope_id` TEXT,
+            `az_angle` DOUBLE,
+            `el_angle` DOUBLE,
+            `health_status` TEXT,
+            `movement_status` TEXT,
+            `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE TABLE IF NOT EXISTS position(
+            `id` INTEGER PRIMARY KEY AUTOINCREMENT,
+            `datetime` DATETIME,
+            `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE TABLE IF NOT EXISTS command(
+            `id` INTEGER PRIMARY KEY AUTOINCREMENT,
+            `user_id` TEXT,
+            `telescope_id` TEXT,
+            `target_az_angle` DOUBLE,
+            `target_el_angle` DOUBLE,
+            `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE TABLE IF NOT EXISTS source(
+            `id` INTEGER PRIMARY KEY AUTOINCREMENT,
+            `name` TEXT UNIQUE
+        );
+    """)
         self.conn.commit()
 
     def insert(self, table_name: str, data: dict) -> tuple[bool, list]:
@@ -107,6 +136,7 @@ class Database:
 
 def main() -> None:
     from user import User
+    from reading import Reading
     #load_dotenv()
     #set_key("", "testing")
     db = Database()
