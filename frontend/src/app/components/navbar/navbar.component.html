@@ -1,0 +1,33 @@
+<nav class="navbar navbar-light bg-light container-fluid px-2">
+  <div class="d-flex align-items-center w-100">
+    <a class="navbar-brand" [routerLink]="['/home']">
+      <img src="assets/sarao-logo.png" alt="South African Radio Astronomy Observatory Logo" width="100px" />
+    </a>
+    <ul class="navbar-nav me-auto d-flex flex-row">
+      <li class="nav-item">
+        <a class="nav-link" [routerLink]="['/telescopes']" routerLinkActive="active">
+          <i class="fa-solid fa-glasses fa-fw"></i>
+          <span class="ms-2 d-none d-lg-inline" [ngClass]="{ 'font-weight-bold': isActiveRoute('telescopes') }">Telescopes</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" [routerLink]="['/commands']" routerLinkActive="active">
+          <i class="fa-solid fa-terminal fa-fw"></i>
+          <span class="ms-2 d-none d-lg-inline" [ngClass]="{ 'font-weight-bold': isActiveRoute('commands') }">Commands</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" [routerLink]="['/readings']" routerLinkActive="active">
+          <i class="fa-solid fa-book fa-fw"></i>
+          <span class="ms-2 d-none d-lg-inline" [ngClass]="{ 'font-weight-bold': isActiveRoute('readings') }">Readings</span>
+        </a>
+      </li>
+    </ul>
+    <div class="d-flex align-items-center">
+      <a class="nav-link text-danger" (click)="signOut()">
+        <i class="fa-solid fa-arrow-right-from-bracket fa-fw"></i>
+        <span class="ms-2 d-none d-lg-inline">Sign Out</span>
+      </a>
+    </div>
+  </div>
+</nav>

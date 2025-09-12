@@ -1,8 +1,0 @@
-.nav-link {
-  cursor: pointer;
-}
-
-.nav-link.active {
-  font-weight: bold;
-  text-decoration: underline;
-}

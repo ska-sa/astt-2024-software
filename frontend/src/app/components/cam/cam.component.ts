@@ -2,6 +2,11 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CanvasJSAngularChartsModule } from '@canvasjs/angular-charts';
 import { FormsModule } from '@angular/forms';
+import { CreateCommand } from '../../interfaces/create-command';
+import { Command } from '../../interfaces/command';
+import { CommandService } from '../../services/command.service';
+import { getUser } from '../../signal';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-cam',
@@ -28,17 +33,20 @@ export class CamComponent {
   altitude = 10; // Sample altitude value
   gridLines = this.generateGridLines();
   sources = [
-    { id: 1, name: 'Source 1' },
-    { id: 2, name: 'Source 2' },
-    { id: 3, name: 'Source 3' }
+    { id: 1, name: 'Sun' },
+    { id: 2, name: 'Moon' },
+    { id: 3, name: 'Mars' }
   ];
   selectedSource: number = this.sources[0].id;
+  telescopeId: number | null = null;
+
+  chartData: { x: Date, y: number }[] = [];
 
   chartOptions = {
     animationEnabled: true,
     theme: "light2",
     title: {
-      text: "Azimuth & Elevation Angle in Real-time"
+      text: "Azimuth & Elevation Angle"
     },
     axisX: {
       valueFormatString: "MMM",
@@ -47,7 +55,7 @@ export class CamComponent {
     },
     axisY: {
       title: "Angle",
-      suffix: "°F"
+      suffix: "°"
     },
     toolTip: {
       shared: true
@@ -65,7 +73,7 @@ export class CamComponent {
     },
     data: [{
       type:"line",
-      name: "Minimum",
+      name: "Azimuth",
       showInLegend: true,
       yValueFormatString: "#,###°F",
       dataPoints: [		
@@ -105,6 +113,13 @@ export class CamComponent {
     }]
   }
 
+  constructor(private commandService: CommandService, private route: ActivatedRoute) {
+    this.route.paramMap.subscribe(params => {
+      const id = params.get('telescopeId');
+      this.telescopeId = id ? +id : null;
+    });
+  }
+
   startDrag(event: MouseEvent): void {
     this.isDragging = true;
     this.updateKnobPosition(event);
@@ -133,6 +148,29 @@ export class CamComponent {
   startTracking(): void {
     // Implement tracking logic here
     console.log(`Started tracking source ${this.selectedSource}`);
+  }
+
+  startPointing(): void {
+    this.isLoading = true;
+    const createCommand: CreateCommand = {
+      user_id: getUser()?.id ?? 0,
+      telescope_id: this.telescopeId ?? 0,
+      target_az_angle: this.azimuth,
+      target_el_angle: this.elevation
+    }
+
+    this.commandService.postCommand(createCommand).subscribe({
+      next: (command: Command) => {
+        console.log('Command sent successfully:', command);
+        this.isLoading = false;
+        this.isPointingPageActive = true;
+      },
+      error: (error) => {
+        console.error('Error sending command:', error);
+        this.isLoading = false;
+      }
+    });
+    return;
   }
 
   private updateKnobPosition(event: MouseEvent): void {

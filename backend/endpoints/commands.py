@@ -51,7 +51,7 @@ def post_command(command: CreateCommand) -> Command:
         telescope_id=str(telescope_id),
         target_az_angle=float(target_az_angle),
         target_el_angle=float(target_el_angle),
-        created_at=datetime.strptime(str(created_at), datetime_format_str)
+        created_at=datetime.fromisoformat(str(created_at))
     )
 
 def delete_command(command_id: int) -> Command:
@@ -89,7 +89,7 @@ def update_command(command_id: int, command: Command) -> Command:
             telescope_id=str(telescope_id),
             target_az_angle=float(target_az_angle),
             target_el_angle=float(target_el_angle),
-            created_at=datetime.strptime(str(created_at), datetime_format_str)
+            created_at=datetime.fromisoformat(str(created_at))
         )
     else:
         raise HTTPException(status_code=500, detail="Failed to update command.")

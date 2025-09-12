@@ -1,25 +1,35 @@
-<div class="container-fluid px-3 py-4">
+<div class="container-fluid px-3">
   <div class="row">
-    <div class="col-12 col-md-8 offset-md-2 mt-4">
+    <div class="col-12 col-md-8 offset-md-2 mt-3">
       <div class="card">
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center mb-3">
-            <h4>Status Panel</h4>
+            <h4>Sensor Readings Panel</h4>
           </div>
-          <div class="row py-3">
-            <div class="col-4">
-              <div class="bg-danger d-block mx-auto" style="width: 50px; height: 50px; border-radius: 100%;">
-                Stop
+          <div class="row">
+            <div class="col">
+              <strong>Health</strong> 
+              <div class="ps-2">
+                Status: <span [ngClass]="true ? 'text-success':'text-danger'">{{ ['Normal', 'Warning', 'Error'][0] }}</span> <br>
+              </div>
+              <strong>GPS</strong>
+              <div class="ps-2">
+                Latitude: {{ 10 }} <br>
+                Longitude: {{ 10 }} <br>
+                Altitude: {{ 10 }}
               </div>
             </div>
-            <div class="col-4">
-              <div class="bg-warning d-block mx-auto" style="width: 50px; height: 50px; border-radius: 100%;">
-                Steady
+            <div class="col">
+              <strong>Magnetometer</strong>
+              <div class="ps-2">
+                Magnetic Field X: {{ 10 }} <br>
+                Magnetic Field Y: {{ 10 }} <br>
+                Magnetic Field Z: {{ 10 }}
               </div>
-            </div>
-            <div class="col-4">
-              <div class="bg-success d-block mx-auto" style="width: 50px; height: 50px; border-radius: 100%;">
-                Ready
+              <strong>Rotary Encoder</strong>
+              <div class="ps-2">
+                Azimuth Angle: {{ 10 }} <br>
+                Elevation Angle: {{ 10 }}
               </div>
             </div>
           </div>
@@ -28,18 +38,19 @@
     </div>
   </div>
   <div class="row">
-    <div class="col-12 col-md-8 offset-md-2 mt-4">
+    <div class="col-12 col-md-8 offset-md-2 mt-3">
       <div class="card">
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center mb-3">
             <h4>Telescope Pointing</h4>
             <div>
-              <span class="me-2">Lat: {{ latitude }}</span>
-              <span class="me-2">Long: {{ longitude }}</span>
-              <span>Alt: {{ altitude }}</span>
+              <div class="btn-group">
+                <button class="btn btn-primary" (click)="point()" [ngClass]="{'active': isPointing}">Point</button>
+                <button class="btn btn-primary" (click)="track()" [ngClass]="{'active': !isPointing}">Track</button>
+              </div>
             </div>
           </div>
-          <div class="joystick-container" (mousedown)="startDrag($event)" (mouseup)="stopDrag()" (mouseleave)="stopDrag()" (mousemove)="onMouseMove($event)">
+          <div class="joystick-container text-center" (mousedown)="startDrag($event)" (mouseup)="stopDrag()" (mouseleave)="stopDrag()" (mousemove)="onMouseMove($event)">
             <svg [attr.width]="width" [attr.height]="height" viewBox="0 0 360 90">
               <g>
                 <rect x="0" y="0" [attr.width]="width" [attr.height]="height" fill="none" stroke="gray" stroke-width="1" />
@@ -49,15 +60,13 @@
             </svg>
             <div class="joystick-knob" [ngStyle]="{'transform': 'translate(' + knobPosition.x + 'px, ' + knobPosition.y + 'px)'}"></div>
           </div>
-          <div class="d-flex justify-content-between align-items-center mt-3">
-            <div class="d-flex">
-              <input class="form-control me-2" type="number" [(ngModel)]="azimuth" placeholder="Azimuth Angle">
-              <input class="form-control" type="number" [(ngModel)]="elevation" placeholder="Elevation Angle">
+          
+          <div *ngIf="isPointing">
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <input class="form-control me-2" type="number" [(ngModel)]="azimuth" placeholder="Azimuth Angle">
+                <input class="form-control" type="number" [(ngModel)]="elevation" placeholder="Elevation Angle">
             </div>
-            <div class="btn-group">
-              <button class="btn btn-primary" (click)="point()" [ngClass]="{'active': isPointing}">Point</button>
-              <button class="btn btn-primary" (click)="track()" [ngClass]="{'active': !isPointing}">Track</button>
-            </div>
+            <button class="btn btn-primary mt-3" (click)="startPointing()">Point</button>
           </div>
           <div *ngIf="!isPointing" class="mt-3">
             <label for="source-select">Select Source:</label>
@@ -71,7 +80,7 @@
     </div>
   </div>
   <div class="row">
-    <div class="col-12 col-md-8 offset-md-2 mt-4">
+    <div class="col-12 col-md-8 offset-md-2 mt-3">
       <div class="card">
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center mb-3">
