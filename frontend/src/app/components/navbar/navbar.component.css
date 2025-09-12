@@ -1,0 +1,14 @@
+.nav-link {
+  cursor: pointer;
+  transition: transform 0.2s, font-weight 0.2s;
+  margin-left: 20px;
+  color: #0d6efd;
+}
+.nav-link:hover {
+  transform: scale(1.1);
+  font-weight: bolder;
+}
+
+.nav-link.active {
+  font-weight: bold;
+}

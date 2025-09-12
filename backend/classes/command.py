@@ -3,8 +3,8 @@ from pydantic import BaseModel
 from datetime import datetime
 
 class CreateCommand(BaseModel):
-    user_id: str
-    telescope_id: str
+    user_id: int
+    telescope_id: int
     target_az_angle: float
     target_el_angle: float
 

@@ -1,0 +1,31 @@
+<ng-container *ngIf="isLoading">
+  <div class="d-flex justify-content-center align-items-center" style="height: 200px;">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+</ng-container>
+<ng-container *ngIf="!isLoading">
+  <table class="table table-hover text-center">
+    <thead>
+      <tr>
+        <th scope="col">ID</th>
+        <th scope="col">User Email</th>
+        <th scope="col">Telescope Name</th>
+        <th scope="col">Target Azimuth Angle</th>
+        <th scope="col">Target Elevation Angle</th>
+        <th scope="col">Created At</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let command of commands; let i = index">
+        <th scope="row"> {{i + 1}} </th>
+        <td> {{ getUserById(command.user_id)?.email_address ?? 'Unknown User' }} </td>
+        <td> {{ command.telescope_id }} </td>
+        <td> {{ command.target_az_angle }} &deg;</td>
+        <td> {{ command.target_el_angle }} &deg;</td>
+        <td> {{ command.created_at | date: 'short' }} </td>
+      </tr>
+    </tbody>
+  </table>
+</ng-container>

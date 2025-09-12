@@ -9,22 +9,36 @@ import { environment } from '../../environments/environment';
 })
 export class UserService {
 
-  url: string = `${environment.host}:${environment.port}/api/v1/users`
+  url: string = `http://${environment.host}:${environment.port}/api/v1/users`
 
   constructor(private httpClient: HttpClient) { }
 
-  getHeaders(): HttpHeaders {
-    return new HttpHeaders({
-      'Content-Type': 'application/json'
-    });
+  httpHeaders: HttpHeaders = new HttpHeaders({
+    'Content-Type': 'application/json'
+  });
+
+  getUser(userId: number): Observable<User> {
+    return this.httpClient.get<User>(`${this.url}/${userId}`, { headers: this.httpHeaders });
   }
 
-  signIn(email: string, password: string): Observable<User> {
+  getUsers(): Observable<User[]> {
+    return this.httpClient.get<User[]>(`${this.url}/`, { headers: this.httpHeaders });
+  }
+
+  signIn(email_address: string, password: string): Observable<User> {
     const user_data = {
-      email: email,
+      email_address: email_address,
       password: password
     }
-    return this.httpClient.post<User>(this.url, user_data, { headers: this.getHeaders()})
+    return this.httpClient.post<User>(`${this.url}/auth`, user_data, { headers: this.httpHeaders });
+  }
+
+  signUp(email_address: string, password: string): Observable<User> {
+    const user_data = {
+      email_address: email_address,
+      password: password
+    }
+    return this.httpClient.post<User>(this.url, user_data, { headers: this.httpHeaders });
   }
 
 }

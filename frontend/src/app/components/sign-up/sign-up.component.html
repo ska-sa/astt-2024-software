@@ -1,0 +1,47 @@
+<div class="container-fluid" style="height: 100vh; background-image: url('assets/sarao-evening-observation.jpg'); background-size: cover; background-position: center;">
+  <div class="row h-100">
+    <div class="col-lg-7 d-none d-lg-flex justify-content-center align-items-center" style="position: relative;">
+      <div class="overlay"></div>
+    </div>
+    <div class="col-lg-5 d-flex justify-content-center align-items-center" style="background-color: rgba(0, 0, 0, 0.5);">
+      <div class="card p-4 shadow" style="width: 100%; max-width: 400px;">
+        <h2 class="mb-4">
+          <img src="assets/sarao-logo.png" alt="Logo" class="img-fluid mb-3" style="max-width: 100px;">
+          Sign Up
+        </h2>
+        <form [formGroup]="signUpForm" (ngSubmit)="onSubmit()">
+          <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" class="form-control form-control-sm" id="email" formControlName="email" required autocomplete="email">
+            <div *ngIf="signUpForm.get('email')?.invalid && (signUpForm.get('email')?.dirty || signUpForm.get('email')?.touched)">
+              <div *ngIf="signUpForm.get('email')?.errors?.['required']" class="text-danger">Email is required.</div>
+              <div *ngIf="signUpForm.get('email')?.errors?.['email']" class="text-danger">Email is not valid.</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" class="form-control form-control-sm" id="password" formControlName="password" required autocomplete="new-password">
+            <div *ngIf="signUpForm.get('password')?.invalid && (signUpForm.get('password')?.dirty || signUpForm.get('password')?.touched)">
+              <div *ngIf="signUpForm.get('password')?.errors?.['required']" class="text-danger">Password is required.</div>
+              <div *ngIf="signUpForm.get('password')?.errors?.['minlength']" class="text-danger">Password must be at least 5 characters long.</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="confirmPassword">Confirm Password</label>
+            <input type="password" class="form-control form-control-sm" id="confirmPassword" formControlName="confirmPassword" required autocomplete="new-password">
+            <div *ngIf="signUpForm.get('confirmPassword')?.invalid && (signUpForm.get('confirmPassword')?.dirty || signUpForm.get('confirmPassword')?.touched)">
+            <div *ngIf="signUpForm.get('confirmPassword')?.errors?.['required']" class="text-danger">Confirm Password is required.</div>
+            <div *ngIf="signUpForm.get('confirmPassword')?.errors?.['passwordMismatch']" class="text-danger">{{ signUpForm.get('confirmPassword')?.errors?.['passwordMismatch'] }}</div>
+            </div>
+            <div>
+            </div>
+          </div>
+          <button type="submit" class="mt-4 btn btn-primary btn-sm btn-block" [disabled]="signUpForm.invalid">Sign Up</button>
+          <div class="text-center mt-3">
+            Already have an account? <a class="btn-link" [routerLink]="['/sign-in']">Sign In</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

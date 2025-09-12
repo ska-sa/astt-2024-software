@@ -12,6 +12,8 @@ import { SourcesComponent } from './components/sources/sources.component';
 import { SourceDetailsComponent } from './components/source-details/source-details.component';
 import { UserDetailsComponent } from './components/user-details/user-details.component';
 import { AppLayoutComponent } from './components/app-layout/app-layout.component';
+import { SignUpComponent } from './components/sign-up/sign-up.component';
+import { userGuard } from './guards/user.guard';
 
 export const routes: Routes = [
     { 
@@ -21,22 +23,24 @@ export const routes: Routes = [
         path: 'sign-in', component: SignInComponent 
     },
     {
-        path: '', component: AppLayoutComponent, children: [
+        path: 'sign-up', component: SignUpComponent
+    },
+    {
+        path: '', component: AppLayoutComponent, canActivateChild: [ userGuard ], children: [
             { 
-                path: 'telescopes', component: TelescopesComponent, children: [
-                    {
-                        path: ':id/details', component: TelescopeDetailsComponent
-                    },
-                    {
-                        path: ':id/cam', component: CamComponent
-                    },
-                    {
-                        path: ':id/commands', component: CommandsComponent
-                    },
-                    {
-                        path: ':id/readings', component: ReadingsComponent
-                    },
-                ]
+                path: 'telescopes', component: TelescopesComponent
+            },
+            {
+                path: 'telescopes/:id/details', component: TelescopeDetailsComponent
+            },
+            {
+                path: 'telescopes/:id/cam', component: CamComponent
+            },
+            {
+                path: 'telescopes/:id/commands', component: CommandsComponent
+            },
+            {
+                path: 'telescopes/:id/readings', component: ReadingsComponent
             },
             {
                 path: 'commands', component: CommandsComponent
