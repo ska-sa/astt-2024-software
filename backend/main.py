@@ -8,9 +8,9 @@ from classes.command import CreateCommand, Command
 from classes.position import CreatePosition, Position
 from endpoints.users import get_users, post_user, get_user, auth_user, delete_user, update_user
 from endpoints.telescopes import get_telescopes, post_telescope, get_telescope, delete_telescope, update_telescope
-from endpoints.readings import get_reading, get_readings, post_reading, update_reading, delete_reading
+from endpoints.readings import get_reading, get_readings, post_reading, update_reading, delete_reading, get_latest_reading
 from endpoints.sources import get_sources, post_source, get_source, delete_source, update_source
-from endpoints.commands import get_commands, post_command, get_command, delete_command, update_command
+from endpoints.commands import get_commands, post_command, get_command, delete_command, update_command, get_latest_command
 from endpoints.positions import get_positions, post_position, get_position, delete_position, update_position
 import uvicorn
 
@@ -103,6 +103,10 @@ def post_readings_endpoint(reading: CreateReading):
 def get_reading_endpoint(reading_id: int):
     return get_reading(reading_id)
 
+@app.get(f"{BASE_URL}/readings/{{telescope_id}}/latest", response_model=Reading)
+def get_latest_reading_endpoint(telescope_id: int):
+    return get_latest_reading(telescope_id)
+
 # curl -X DELETE -H "Content-Type: application/json" -d '{}' "http://127.0.0.1:8000/api/v1/readings/1"
 @app.delete(f"{BASE_URL}/readings/{{reading_id}}", response_model=Reading)
 def delete_reading_endpoint(reading_id: int):
@@ -148,6 +152,10 @@ def post_command_endpoint(command: CreateCommand):
 @app.get(f"{BASE_URL}/commands/{{command_id}}", response_model=Command)
 def get_command_endpoint(command_id: int):
     return get_command(command_id)
+
+@app.get(f"{BASE_URL}/commands/{{telescope_id}}/latest", response_model=Command)
+def get_latest_command_endpoint(telescope_id: int):
+    return get_latest_command(telescope_id)
 
 @app.delete(f"{BASE_URL}/commands/{{command_id}}", response_model=Command)
 def delete_command_endpoint(command_id: int):
