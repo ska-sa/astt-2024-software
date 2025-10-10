@@ -36,6 +36,22 @@ def get_commands() -> list[Command]:
             created_at=datetime.fromisoformat(str(created_at))
         ))
     return commands
+def get_latest_command(telescope_id: int) -> Command:
+    db = Database()
+    _, db_select_command_outputs = db.read(table_name, criteria={'telescope_id': telescope_id})
+    if db_select_command_outputs:
+        id, user_id, telescope_id, target_az_angle, target_el_angle, created_at = db_select_command_outputs[-1]
+        return Command(
+            id=int(id),
+            user_id=str(user_id),
+            telescope_id=str(telescope_id),
+            target_az_angle=float(target_az_angle),
+            target_el_angle=float(target_el_angle),
+            created_at=datetime.fromisoformat(str(created_at))
+        )
+    else:
+        raise HTTPException(status_code=404, detail=f"No commands found for telescope ID {telescope_id}.")
+
 
 def post_command(command: CreateCommand) -> Command:
     db = Database()

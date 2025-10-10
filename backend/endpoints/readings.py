@@ -24,7 +24,15 @@ def get_readings() -> list[Reading]:
         readings.append(Reading(id=int(id), telescope_id=int(telescope_id), az_angle=float(az_angle), el_angle=float(el_angle),health_status=str(health_status),
                                 movement_status=str(movement_status), created_at=datetime.fromisoformat(str(created_at))))
     return readings
-
+def  get_latest_reading(telescope_id: int) -> Reading:
+    db = Database()
+    _, db_select_reading_outputs = db.read(table_name, criteria={'telescope_id': telescope_id})
+    if db_select_reading_outputs:
+        id, telescope_id, az_angle, el_angle, health_status, movement_status, created_at = db_select_reading_outputs[-1]
+        return Reading(id=int(id), telescope_id=int(telescope_id),az_angle=float(az_angle), el_angle=float(el_angle), health_status=str(health_status),
+                       movement_status=str(movement_status), created_at=datetime.fromisoformat(str(created_at)))
+    else:
+        raise HTTPException(status_code=404, detail=f"No readings found for telescope ID {telescope_id}.")
 def post_reading(reading: CreateReading) -> Reading:
     db = Database()
     _,_ = db.insert(table_name, reading.__dict__)
