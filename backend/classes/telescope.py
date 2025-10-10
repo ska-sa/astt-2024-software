@@ -3,7 +3,7 @@ from pydantic import BaseModel
 
 class CreateTelescope(BaseModel):
     name: str
-    health_status: str
+    health_status: int
 
 class Telescope(CreateTelescope):
     id: int

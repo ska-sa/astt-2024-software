@@ -4,9 +4,6 @@ from classes import Database
 from datetime import datetime
 
 table_name: str = 'command'
-#datetime_format_str: str = '%Y-%m-%d %H:%M:%S'
-datetime_format_str = '%Y-%m-%d %H:%M:%S.%f%z'
-
 
 def get_command(command_id: int) -> Command:
     db = Database()
@@ -81,8 +78,6 @@ def update_command(command_id: int, command: Command) -> Command:
     if success:
         _, db_select_command_outputs = db.read(table_name, criteria={'id': command_id})
         id, user_id, telescope_id, target_az_angle, target_el_angle, created_at = db_select_command_outputs[0]
-        if str(created_at).find("T") != -1:
-            created_at = created_at.replace("T", " ")
         return Command(
             id=int(id),
             user_id=str(user_id),

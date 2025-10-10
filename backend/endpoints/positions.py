@@ -4,7 +4,6 @@ from classes import Database
 from datetime import datetime
 
 table_name: str = 'position'
-datetime_format_str: str = '%Y-%m-%d %H:%M:%S'
 
 def get_position(position_id: int) -> Position:
     db = Database()
@@ -14,7 +13,7 @@ def get_position(position_id: int) -> Position:
         return Position(
             id=int(id),
             datetime=datetime.fromisoformat(str(datetime_val)),
-            created_at=datetime.strptime(str(created_at), datetime_format_str)
+            created_at=datetime.fromisoformat(str(created_at))
         )
     else:
         raise HTTPException(status_code=404, detail=f"Position with ID {position_id} not found.")
@@ -40,7 +39,7 @@ def post_position(position: CreatePosition) -> Position:
     return Position(
         id=int(id),
         datetime=datetime.fromisoformat(str(datetime_val)),
-        created_at=datetime.strptime(str(created_at), datetime_format_str)
+        created_at=datetime.fromisoformat(str(created_at))
     )
 
 def delete_position(position_id: int) -> Position:
@@ -51,7 +50,7 @@ def delete_position(position_id: int) -> Position:
         position = Position(
             id=int(id),
             datetime=datetime.fromisoformat(str(datetime_val)),
-            created_at=datetime.strptime(str(created_at), datetime_format_str)
+            created_at=datetime.fromisoformat(str(created_at))
         )
         success, _ = db.delete(table_name, criteria={'id': position_id})
         if success:
@@ -67,8 +66,6 @@ def update_position(position_id: int, position: Position) -> Position:
     if success:
         _, db_select_position_outputs = db.read(table_name, criteria={'id': position_id})
         id, datetime_val, created_at = db_select_position_outputs[0]
-        if str(created_at).find("T") != -1:
-            created_at = created_at.replace("T", " ")
         return Position(
             id=int(id),
             datetime=datetime.fromisoformat(str(datetime_val)),
