@@ -99,19 +99,19 @@ def post_readings_endpoint(reading: CreateReading):
     return post_reading(reading)
 
 # curl -X GET -H "Content-Type: application/json" -d '{}' "http://127.0.0.1:8000/api/v1/readings/1"
-@app.get(f"{BASE_URL}/readings/{{telescope_id}}", response_model=Reading)
-def get_reading_endpoint(id: int):
-    return get_reading(id)
+@app.get(f"{BASE_URL}/readings/{{reading_id}}", response_model=Reading)
+def get_reading_endpoint(reading_id: int):
+    return get_reading(reading_id)
 
 # curl -X DELETE -H "Content-Type: application/json" -d '{}' "http://127.0.0.1:8000/api/v1/readings/1"
-@app.delete(f"{BASE_URL}/readings/{{telescope_id}}", response_model=Reading)
-def delete_reading_endpoint(id: int):
-    return delete_reading(id)
+@app.delete(f"{BASE_URL}/readings/{{reading_id}}", response_model=Reading)
+def delete_reading_endpoint(reading_id: int):
+    return delete_reading(reading_id)
 
 # curl -X PUT -H "Content-Type: application/json" -d '{"email_address": "new@email.com", "password": "newpassword"}' "http://127.0.0.1:8000/api/v1/telescopes/1"
-@app.put(f"{BASE_URL}/readings/{{telescope_id}}", response_model=Reading)
-def update_reading_endpoint(id: int, telescope: Reading):
-    return update_reading(id, telescope)
+@app.put(f"{BASE_URL}/readings/{{reading_id}}", response_model=Reading)
+def update_reading_endpoint(reading_id: int, telescope: Reading):
+    return update_reading(reading_id, telescope)
 
 """Source"""
 

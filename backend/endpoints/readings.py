@@ -4,15 +4,14 @@ from datetime import datetime
 from classes import Database
 
 table_name: str = 'reading'
-datetime_format_str: str = '%Y-%m-%d %H:%M:%S'
 
-def get_reading(telescope_id: int) -> Reading:
+def get_reading(reading_id: int) -> Reading:
     db = Database()
-    _,db_select_reading_outputs = db.read(table_name, criteria={'id': telescope_id})
+    _,db_select_reading_outputs = db.read(table_name, criteria={'id': reading_id})
     if db_select_reading_outputs:
         id, telescope_id, az_angle, el_angle, health_status, movement_status, created_at =db_select_reading_outputs[0]
         return Reading(id=int(id),telescope_id=int(telescope_id),az_angle=float(az_angle), el_angle=float(el_angle),health_status=str(health_status),
-                       movement_status=str(movement_status), created_at=datetime.strptime(str(created_at),datetime_format_str))
+                       movement_status=str(movement_status), created_at=datetime.fromisoformat(str(created_at)))
     else:
         return None
     
@@ -23,7 +22,7 @@ def get_readings() -> list[Reading]:
     for db_select_reading_output in db_select_reading_outputs:
         id, telescope_id, az_angle, el_angle, health_status, movement_status, created_at = db_select_reading_output
         readings.append(Reading(id=int(id), telescope_id=int(telescope_id), az_angle=float(az_angle), el_angle=float(el_angle),health_status=str(health_status),
-                                movement_status=str(movement_status), created_at=datetime.strptime(str(created_at), datetime_format_str)))
+                                movement_status=str(movement_status), created_at=datetime.fromisoformat(str(created_at))))
     return readings
 
 def post_reading(reading: CreateReading) -> Reading:
@@ -32,32 +31,31 @@ def post_reading(reading: CreateReading) -> Reading:
     _, db_select_reading_outputs = db.read(table_name, criteria=reading.__dict__)
     id, telescope_id, az_angle, el_angle, health_status, movement_status, created_at = db_select_reading_outputs[-1]
     return Reading(id=int(id), telescope_id=int(telescope_id),az_angle=float(az_angle), el_angle=float(el_angle),
-                    health_status= str(health_status),movement_status=str(movement_status), created_at=datetime.strptime(str(created_at), datetime_format_str))
+                    health_status= str(health_status),movement_status=str(movement_status), created_at=datetime.fromisoformat(str(created_at)))
 
-def delete_reading(telescope_id: int) -> Reading:
+def delete_reading(reading_id: int) -> Reading:
     db = Database()
-    _, db_select_reading_outputs = db.read(table_name, criteria={'id': telescope_id})
+    _, db_select_reading_outputs = db.read(table_name, criteria={'id': reading_id})
     if db_select_reading_outputs:
         id, telescope_id, az_angle, el_angle, health_status, movement_status, created_at = db_select_reading_outputs[0]
-        reading = Reading(id=int(id), telescope_id=int(telescope_id),az_angle=float(az_angle), el_angle=float(el_angle), health_status=str(health_status), movement_status=str(movement_status), created_at=datetime.strptime(str(created_at), datetime_format_str))
-        success, _ =db.delete(table_name, criteria={'id': telescope_id})
+        reading = Reading(id=int(id), telescope_id=int(telescope_id),az_angle=float(az_angle), el_angle=float(el_angle), health_status=str(health_status), movement_status=str(movement_status), created_at=datetime.fromisoformat(str(created_at)))
+        success, _ =db.delete(table_name, criteria={'id': reading_id})
         if success:
             return reading
         else: 
             return HTTPException(status_code=500, detail="Failed to delete reading.")
     else:
-        raise HTTPException(status_code=404,detail=f"Reading with ID {telescope_id} not found.")
+        raise HTTPException(status_code=404,detail=f"Reading with ID {reading_id} not found.")
+   
         
-def update_reading(telescope_id: int, reading: Reading) -> Reading:
+def update_reading(reading_id: int, reading: Reading) -> Reading:
     db = Database()
-    success, _ =db.update(table_name, criteria={'id': telescope_id}, data=reading.__dict__)
+    success, _ =db.update(table_name, criteria={'id': reading_id}, data=reading.__dict__)
     if success:
-        _, db_select_reading_outputs = db.read(table_name, criteria={'id': telescope_id})
+        _, db_select_reading_outputs = db.read(table_name, criteria={'id': reading_id})
         id, telescope_id, az_angle, el_angle, health_status, movement_status, created_at = db_select_reading_outputs[0]
-        if str(created_at).find("T") != -1:
-            created_at = created_at.replace("T", " ")
         return Reading(id=int(id), telescope_id=int(telescope_id),az_angle=float(az_angle),el_angle=float(el_angle), health_status=str(health_status),
-                       movement_status=str(movement_status), created_at=datetime.strptime(str(created_at), datetime_format_str))
+                       movement_status=str(movement_status), created_at=datetime.fromisoformat(str(created_at)))
     else:
         return None
     

@@ -4,7 +4,7 @@ from datetime import datetime
 from classes import Database
 
 table_name: str = 'telescope'
-datetime_format_str: str = '%Y-%m-%d %H:%M:%S'
+
 
 def get_telescopes() -> list[Telescope]:
     # Read telescopes from db
@@ -13,10 +13,7 @@ def get_telescopes() -> list[Telescope]:
     telescopes = []
     for db_select_telescope_output in db_select_telescope_outputs:
         id, name, health_status, created_at = db_select_telescope_output
-        if str(created_at).find("T") != -1:
-            created_at = created_at.replace("T", " ")
-            
-        telescopes.append(Telescope(id=int(id), name=str(name), health_status=str(health_status), created_at=datetime.strptime(str(created_at), datetime_format_str)))
+        telescopes.append(Telescope(id=int(id), name=str(name), health_status=str(health_status), created_at=datetime.fromisoformat(str(created_at))))
 
     return telescopes
 
@@ -30,7 +27,7 @@ def post_telescope(telescope: CreateTelescope) -> Telescope:
     id, name, health_status, created_at = db_select_telescope_outputs[-1]
 
     print(f"Created telescope: {created_at}")
-    return Telescope(id=int(id), name=str(name), health_status=str(health_status), created_at=datetime.strptime(str(created_at), datetime_format_str))
+    return Telescope(id=int(id), name=str(name), health_status=str(health_status), created_at=datetime.fromisoformat(str(created_at)))
 
 def get_telescope(telescope_id: int) -> Telescope:
     # Read telescope from db by id
@@ -38,7 +35,7 @@ def get_telescope(telescope_id: int) -> Telescope:
     _, db_select_telescope_outputs = db.read(table_name, criteria={'id': telescope_id})
     if db_select_telescope_outputs:
         id, name, health_status, created_at = db_select_telescope_outputs[0]
-        return Telescope(id=int(id), name=str(name), health_status=str(health_status), created_at=datetime.strptime(str(created_at), datetime_format_str))
+        return Telescope(id=int(id), name=str(name), health_status=str(health_status), created_at=datetime.fromisoformat(str(created_at)))
     else:
         return None
 
@@ -48,7 +45,7 @@ def delete_telescope(telescope_id: int) -> Telescope:
     _, db_select_telescope_outputs = db.read(table_name, criteria={'id': telescope_id})
     if db_select_telescope_outputs:
         id, name, health_status, created_at= db_select_telescope_outputs[0]
-        telescope = Telescope(id=int(id), name=str(name), health_status=str(health_status), created_at=datetime.strptime(str(created_at), datetime_format_str))
+        telescope = Telescope(id=int(id), name=str(name), health_status=str(health_status), created_at=datetime.fromisoformat(str(created_at)))
         success, _ = db.delete(table_name, criteria={'id': telescope_id})
         if success:
             return telescope
@@ -64,8 +61,6 @@ def update_telescope(telescope_id: int, telescope: Telescope) -> Telescope:
     if success:
         _, db_select_telescope_outputs = db.read(table_name, criteria={'id': telescope_id})
         id, name, health_status, created_at = db_select_telescope_outputs[0]
-        if str(created_at).find("T") != -1:
-            created_at = created_at.replace("T", " ")
-        return Telescope(id=int(id), name=str(name), health_status=str(health_status), created_at=datetime.strptime(str(created_at), datetime_format_str))
+        return Telescope(id=int(id), name=str(name), health_status=str(health_status), created_at=datetime.fromisoformat(str(created_at)))
     else:
         return None
