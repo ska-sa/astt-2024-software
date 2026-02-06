@@ -20,6 +20,10 @@ export class ReadingService {
     return this.httpClient.get<Reading[]>(this.url, { headers: this.httpHeaders });
   }
 
+  getLatestReading(telescope_id: number): Observable<Reading> {
+    return this.httpClient.get<Reading>(`${this.url}${telescope_id}/latest`, { headers: this.httpHeaders });
+  }
+
   postReading(createReading: CreateReading) {
     return this.httpClient.post<Reading>(this.url, createReading, { headers: this.httpHeaders });
   }
