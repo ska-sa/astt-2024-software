@@ -20,6 +20,10 @@ export class TelescopeService {
     return this.httpClient.get<Telescope[]>(this.url, { headers:  this.httpHeaders});
   }
 
+  getTelescope(telescope_id: number): Observable<Telescope> {
+    return this.httpClient.get<Telescope>(`${this.url}${telescope_id}`, { headers:  this.httpHeaders});
+  }
+
   postTelescope(telescope: CreateTelescope): Observable<Telescope> {
     return this.httpClient.post<Telescope>(this.url, telescope, { headers: this.httpHeaders });
   }
