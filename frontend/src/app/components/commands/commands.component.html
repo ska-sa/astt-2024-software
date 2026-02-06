@@ -20,7 +20,7 @@
     <tbody>
       <tr *ngFor="let command of commands; let i = index">
         <th scope="row"> {{i + 1}} </th>
-        <td> {{ getUserById(command.user_id)?.email_address ?? 'Unknown User' }} </td>
+        <td> {{ getUserEmailById(command.user_id) }} </td>
         <td> {{ command.telescope_id }} </td>
         <td> {{ command.target_az_angle }} &deg;</td>
         <td> {{ command.target_el_angle }} &deg;</td>

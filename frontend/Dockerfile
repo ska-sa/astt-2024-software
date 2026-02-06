@@ -1,28 +1,29 @@
-# This Dockerfile is used to build the frontend application using Node.js and Alpine Linux.
-FROM node:20-alpine
+# ---- Stage 1: Build Angular App ----
+FROM node:20-alpine AS build
 
-# Set the working directory inside the container
 WORKDIR /app
 
-# Copy the package.json and package-lock.json files to the working directory
 COPY package*.json ./
-# Install the application dependencies
-RUN npm install --legacy-peer-deps
+RUN npm ci --legacy-peer-deps
 
-# Copy the rest of the application code to the working directory
 COPY . .
 
-# Build the application
-RUN npm run build -- --prod --output-path=/www/localhost/htdocs
+# Build Angular (production)
+RUN npx ng build --configuration production --no-progress --delete-output-path=true
 
-# Get apache2 package
-RUN apk add --no-cache apache2
+# ---- Stage 2: Serve with Nginx ----
+FROM nginx:alpine
 
-# Copy the built application to the Apache document root
-RUN cp -r dist/* /var/www/localhost/htdocs/
+# Remove default Nginx web files
+RUN rm -rf /usr/share/nginx/html/*
 
-# Expose port 80 for the Apache server
-EXPOSE 80
+# Copy the built Angular app (adjusted for Angular 19 output path)
+COPY --from=build /app/dist/frontend/browser /usr/share/nginx/html
 
-# Start the Apache server in the foreground
-CMD ["httpd", "-D", "FOREGROUND"]
+# Copy custom Nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Expose Angular port
+EXPOSE 4200
+
+CMD ["nginx", "-g", "daemon off;"]

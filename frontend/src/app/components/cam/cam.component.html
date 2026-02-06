@@ -4,32 +4,44 @@
       <div class="card">
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center mb-3">
-            <h4>Sensor Readings Panel</h4>
+            <h5>Sensor Readings Panel</h5>
           </div>
           <div class="row">
             <div class="col">
               <strong>Health</strong> 
               <div class="ps-2">
-                Status: <span [ngClass]="true ? 'text-success':'text-danger'">{{ ['Normal', 'Warning', 'Error'][0] }}</span> <br>
+                Status: <span [ngClass]="getHealthStatusClass()">{{ reading?.health_status }}</span>
               </div>
               <strong>GPS</strong>
               <div class="ps-2">
-                Latitude: {{ 10 }} <br>
-                Longitude: {{ 10 }} <br>
-                Altitude: {{ 10 }}
+                Latitude: {{ reading?.lat }} <br>
+                Longitude: {{ reading?.lon }} <br>
+                Altitude: {{ reading?.alt }} m
+              </div>
+              <strong>Accelerometer</strong><br>
+              <div class="ps-2">
+                Acceleration X: {{ reading?.acc_x }} m/s²<br>
+                Acceleration Y: {{ reading?.acc_y }} m/s²<br>
+                Acceleration Z: {{ reading?.acc_z }} m/s²
               </div>
             </div>
             <div class="col">
               <strong>Magnetometer</strong>
               <div class="ps-2">
-                Magnetic Field X: {{ 10 }} <br>
-                Magnetic Field Y: {{ 10 }} <br>
-                Magnetic Field Z: {{ 10 }}
+                Magnetic Field X: {{ reading?.mag_x }} T<br>
+                Magnetic Field Y: {{ reading?.mag_y }} T<br>
+                Magnetic Field Z: {{ reading?.mag_z }} T
               </div>
               <strong>Rotary Encoder</strong>
               <div class="ps-2">
-                Azimuth Angle: {{ 10 }} <br>
-                Elevation Angle: {{ 10 }}
+                Azimuth Angle: {{ reading?.az_angle }} &deg; <br>
+                Elevation Angle: {{ reading?.el_angle }} &deg;
+              </div>
+              <strong>Gyroscope</strong>
+              <div class="ps-2">
+                Gyro X: {{ reading?.gyo_x }} °/s<br>
+                Gyro Y: {{ reading?.gyo_y }} °/s<br>
+                Gyro Z: {{ reading?.gyo_z }} °/s
               </div>
             </div>
           </div>
@@ -38,11 +50,11 @@
     </div>
   </div>
   <div class="row">
-    <div class="col-12 col-md-8 offset-md-2 mt-3">
+    <div class="col-12 col-md-8 offset-md-2 mt-2">
       <div class="card">
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center mb-3">
-            <h4>Telescope Pointing</h4>
+            <h5>Control Panel</h5>
             <div>
               <div class="btn-group">
                 <button class="btn btn-primary" (click)="point()" [ngClass]="{'active': isPointing}">Point</button>
@@ -50,6 +62,7 @@
               </div>
             </div>
           </div>
+          <!--
           <div class="joystick-container text-center" (mousedown)="startDrag($event)" (mouseup)="stopDrag()" (mouseleave)="stopDrag()" (mousemove)="onMouseMove($event)">
             <svg [attr.width]="width" [attr.height]="height" viewBox="0 0 360 90">
               <g>
@@ -60,15 +73,15 @@
             </svg>
             <div class="joystick-knob" [ngStyle]="{'transform': 'translate(' + knobPosition.x + 'px, ' + knobPosition.y + 'px)'}"></div>
           </div>
-          
+          -->
           <div *ngIf="isPointing">
-            <div class="d-flex justify-content-between align-items-center mt-3">
+            <div class="d-flex justify-content-between align-items-center mt-2">
                 <input class="form-control me-2" type="number" [(ngModel)]="azimuth" placeholder="Azimuth Angle">
                 <input class="form-control" type="number" [(ngModel)]="elevation" placeholder="Elevation Angle">
             </div>
             <button class="btn btn-primary mt-3" (click)="startPointing()">Point</button>
           </div>
-          <div *ngIf="!isPointing" class="mt-3">
+          <div *ngIf="!isPointing" class="mt-2">
             <label for="source-select">Select Source:</label>
             <select class="form-control" id="source-select" [(ngModel)]="selectedSource">
               <option *ngFor="let source of sources" [value]="source.id">{{ source.name }}</option>
@@ -80,15 +93,28 @@
     </div>
   </div>
   <div class="row">
-    <div class="col-12 col-md-8 offset-md-2 mt-3">
+    <div class="col-12 col-md-8 offset-md-2 mt-2">
       <div class="card">
         <div class="card-body">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <h4>Monitor Panel</h4>
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h5>Monitor Panel</h5>
+            <div>
+              <label for="resolutionSelect" class="form-label me-2 mb-0">Resolution:</label>
+              <select id="resolutionSelect" class="form-select form-select-sm" [(ngModel)]="selectedResolution" (change)="onResolutionChange()">
+                <option *ngFor="let option of resolutionOptions" [ngValue]="option">{{ option.label }}</option>
+              </select>
+            </div>
           </div>
-          <div class="row py-3">
-            <div class="col-12">
-              <canvasjs-chart [options]="chartOptions" [styles]="{width: '100%', height:'360px'}"></canvasjs-chart>
+          <div class="row">
+            <div class="col-12 col-md-8 offset-md-2 mt-2">
+              <div class="card" [style.opacity]="isDeviceOnline ? '1' : '0.5'">
+                <div class="card-body">
+                  <canvasjs-chart [options]="chartOptions" [styles]="{width: '100%', height:'360px'}"></canvasjs-chart>
+                  <div *ngIf="!isDeviceOnline" class="text-danger mt-2">
+                    Device is offline or no recent data available.
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

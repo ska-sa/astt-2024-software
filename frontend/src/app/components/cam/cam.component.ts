@@ -1,12 +1,15 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { CanvasJSAngularChartsModule } from '@canvasjs/angular-charts';
+import { CanvasJSAngularChartsModule, CanvasJS } from '@canvasjs/angular-charts';
 import { FormsModule } from '@angular/forms';
 import { CreateCommand } from '../../interfaces/create-command';
 import { Command } from '../../interfaces/command';
 import { CommandService } from '../../services/command.service';
 import { getUser } from '../../signal';
 import { ActivatedRoute } from '@angular/router';
+import { Reading } from '../../interfaces/reading';
+import { ReadingService } from '../../services/reading.service';
+import { interval, Subscription, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-cam',
@@ -19,6 +22,7 @@ import { ActivatedRoute } from '@angular/router';
   styleUrl: './cam.component.css'
 })
 export class CamComponent {
+  reading: Reading | null = null;
   width = 360; // Width of the SVG
   height = 90; // Height of the SVG
   knobPosition: { x: number, y: number } = { x: 0, y: 0 };
@@ -71,53 +75,157 @@ export class CamComponent {
         e.chart.render();
       }
     },
-    data: [{
-      type:"line",
-      name: "Azimuth",
-      showInLegend: true,
-      yValueFormatString: "#,###°F",
-      dataPoints: [		
-        { x: new Date(2021, 0, 1), y: 27 },
-        { x: new Date(2021, 1, 1), y: 28 },
-        { x: new Date(2021, 2, 1), y: 35 },
-        { x: new Date(2021, 3, 1), y: 45 },
-        { x: new Date(2021, 4, 1), y: 54 },
-        { x: new Date(2021, 5, 1), y: 64 },
-        { x: new Date(2021, 6, 1), y: 69 },
-        { x: new Date(2021, 7, 1), y: 68 },
-        { x: new Date(2021, 8, 1), y: 61 },
-        { x: new Date(2021, 9, 1), y: 50 },
-        { x: new Date(2021, 10, 1), y: 41 },
-        { x: new Date(2021, 11, 1), y: 33 }
-      ]
-    },
-    {
-      type: "line",
-      name: "Maximum",
-      showInLegend: true,
-      yValueFormatString: "#,###°F",
-      dataPoints: [
-        { x: new Date(2021, 0, 1), y: 40 },
-        { x: new Date(2021, 1, 1), y: 42 },
-        { x: new Date(2021, 2, 1), y: 50 },
-        { x: new Date(2021, 3, 1), y: 62 },
-        { x: new Date(2021, 4, 1), y: 72 },
-        { x: new Date(2021, 5, 1), y: 80 },
-        { x: new Date(2021, 6, 1), y: 85 },
-        { x: new Date(2021, 7, 1), y: 84 },
-        { x: new Date(2021, 8, 1), y: 76 },
-        { x: new Date(2021, 9, 1), y: 64 },
-        { x: new Date(2021, 10, 1), y: 54 },
-        { x: new Date(2021, 11, 1), y: 44 }
-      ]
-    }]
-  }
+    data: [
+      {
+        type: "line",
+        name: "Azimuth",
+        showInLegend: true,
+        yValueFormatString: "#,###°",
+        dataPoints: [] as { x: Date, y: number }[]
+      },
+      {
+        type: "line",
+        name: "Elevation",
+        showInLegend: true,
+        yValueFormatString: "#,###°",
+        dataPoints: [] as { x: Date, y: number }[]
+      }
+    ]
+  };
 
-  constructor(private commandService: CommandService, private route: ActivatedRoute) {
+
+  constructor(private commandService: CommandService, private route: ActivatedRoute, private readingService: ReadingService) {
     this.route.paramMap.subscribe(params => {
-      const id = params.get('telescopeId');
+      const id = params.get('id');
       this.telescopeId = id ? +id : null;
     });
+  }
+  ngOnInit(): void {
+    this.loadReading();
+    this.startPollingReadings();
+  }
+  pollSubscription: Subscription | null = null;
+  isDeviceOnline = true;
+  resolutionOptions = [
+    { label: '1m', durationMs: 60 * 1000 },
+    { label: '5m', durationMs: 5 * 60 * 1000 },
+    { label: '10m', durationMs: 10 * 60 * 1000 },
+    { label: '30m', durationMs: 30 * 60 * 1000 },
+    { label: '1h', durationMs: 60 * 60 * 1000 },
+    { label: '1d', durationMs: 24 * 60 * 60 * 1000 },
+    { label: '7d', durationMs: 7 * 24 * 60 * 60 * 1000 },
+    { label: '1m (month)', durationMs: 30 * 24 * 60 * 60 * 1000 },
+    { label: '1y', durationMs: 365 * 24 * 60 * 60 * 1000 }
+  ];
+  selectedResolution = this.resolutionOptions[0]; // default 1m
+
+  // Store historical readings for graphing
+  readingHistory: { timestamp: Date; az: number; el: number }[] = [];
+
+
+  ngOnDestroy(): void {
+    this.pollSubscription?.unsubscribe();
+  }
+
+  startPollingReadings(): void {
+    if (!this.telescopeId) return;
+
+    this.pollSubscription = interval(1000)
+      .pipe(
+        switchMap(() => this.readingService.getLatestReading(this.telescopeId!))
+      )
+      .subscribe({
+        next: (reading: Reading) => {
+          this.reading = reading;
+
+          // Check device online status (latest reading timestamp within 2 minutes)
+          const now = new Date();
+          const readingTime = new Date(reading.created_at ?? now.toISOString());
+          this.isDeviceOnline = (now.getTime() - readingTime.getTime()) < 2 * 60 * 1000;
+
+          if (this.isDeviceOnline) {
+            // Add to history and filter by selected resolution
+            this.readingHistory.push({ timestamp: readingTime, az: reading.az_angle, el: reading.el_angle });
+            this.filterReadingHistory();
+            this.updateChartData();
+          }
+        },
+        error: (err) => {
+          console.error('Error polling readings:', err);
+          this.isDeviceOnline = false;
+        }
+      });
+  }
+
+  filterReadingHistory(): void {
+    const now = new Date().getTime();
+    const cutoff = now - this.selectedResolution.durationMs;
+    this.readingHistory = this.readingHistory.filter(r => r.timestamp.getTime() >= cutoff);
+  }
+
+  updateChartData(): void {
+    // Prepare dataPoints for Azimuth and Elevation
+    const azDataPoints = this.readingHistory.map(r => ({ x: r.timestamp, y: r.az }));
+    const elDataPoints = this.readingHistory.map(r => ({ x: r.timestamp, y: r.el }));
+
+    // Update chart options data
+    this.chartOptions.data = [
+      {
+        type: "line",
+        name: "Azimuth",
+        showInLegend: true,
+        yValueFormatString: "#,###°",
+        dataPoints: azDataPoints
+      },
+      {
+        type: "line",
+        name: "Elevation",
+        showInLegend: true,
+        yValueFormatString: "#,###°",
+        dataPoints: elDataPoints
+      }
+    ];
+
+    // Update x-axis format based on resolution (simplified)
+    if (this.selectedResolution.durationMs < 24 * 60 * 60 * 1000) {
+      this.chartOptions.axisX.valueFormatString = "HH:mm:ss";
+      this.chartOptions.axisX.intervalType = "minute";
+      this.chartOptions.axisX.interval = 1;
+    } else if (this.selectedResolution.durationMs < 30 * 24 * 60 * 60 * 1000) {
+      this.chartOptions.axisX.valueFormatString = "MMM dd";
+      this.chartOptions.axisX.intervalType = "day";
+      this.chartOptions.axisX.interval = 1;
+    } else {
+      this.chartOptions.axisX.valueFormatString = "MMM yyyy";
+      this.chartOptions.axisX.intervalType = "month";
+      this.chartOptions.axisX.interval = 1;
+    }
+  }
+
+  // Call this method on resolution change from the template
+  onResolutionChange(): void {
+    this.filterReadingHistory();
+    this.updateChartData();
+  }
+
+  loadReading(): void {
+    if (!this.telescopeId) {
+      console.error('Telescope ID is not set.');
+      return;
+    }
+    this.isLoading = true;
+    this.readingService.getLatestReading(this.telescopeId).subscribe({
+      next: (reading: Reading) => {
+        this.reading = reading;
+        console.log('Latest reading loaded successfully:', reading);
+        this.isLoading = false;
+      },
+      error: (error: Error) => {
+        console.error('Error loading latest reading:', error);
+        this.isLoading = false;
+      }
+    });
+    return;
   }
 
   startDrag(event: MouseEvent): void {
@@ -202,5 +310,17 @@ export class CamComponent {
       gridLines.push({ x1: 0, y1: i, x2: 360, y2: i });
     }
     return gridLines;
+  }
+
+  public getHealthStatusClass() : string{
+    if (this.reading?.health_status?.includes('nominal')) {
+      return 'text-success';
+    } else if (this.reading?.health_status?.includes('warning')) {
+      return 'text-warning';
+    } else if (this.reading?.health_status?.includes('error')) {
+      return 'text-danger';
+    } else {
+      return '';
+    }
   }
 }
