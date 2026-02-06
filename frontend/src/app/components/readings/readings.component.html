@@ -4,7 +4,6 @@
       <th scope="col">ID</th>
       <th scope="col">Telescope Name</th>
       <th scope="col">Heath Status</th>
-      <th scope="col">Mode</th>
       <th scope="col">Movenment Status</th>
       <th scope="col">Azimuth Angle</th>
       <th scope="col">Elevation Angle</th>
@@ -12,15 +11,30 @@
     </tr>
   </thead>
   <tbody>
-    <tr>
-      <th scope="row">1</th>
-      <td>ASTT 2024</td>
-      <td class="text-success">Normal</td>
-      <td>Pointing</td>
-      <td class="text-danger">Stopped</td>
-      <td>32.50 &deg;</td>
-      <td>67.87 &deg;</td>
-      <td>03/05/2025 15:14:30</td>
-    </tr>
+    <ng-container *ngIf="isLoading">
+      <tr>
+        <td colspan="7">
+          Loading...
+        </td>
+      </tr>
+    </ng-container>
+    <ng-container *ngIf="!isLoading">
+      <ng-container *ngIf="readings.length == 0">
+        <tr class="text-center">
+          <td colspan="7">
+            No Data
+          </td>
+        </tr>
+      </ng-container>
+      <tr *ngFor="let reading of readings; let index = index;">
+        <th scope="row">{{ index }}</th>
+        <td>{{ reading.telescope_id }} {{ getTelescopeNameById(reading.telescope_id) }}</td>
+        <td class="text-success">{{ reading.health_status }}</td>
+        <td class="text-danger">{{ reading.movement_status ? "Moving" : "Stopped" }}</td>
+        <td>{{ reading.az_angle }} &deg;</td>
+        <td>{{ reading.el_angle }} &deg;</td>
+        <td>{{ reading.created_at }}</td>
+      </tr>
+    </ng-container>
   </tbody>
 </table>
