@@ -50,6 +50,7 @@ export class CommandsComponent implements OnInit {
     this.areUsersLoading = true;
     this.userService.getUsers().subscribe({
       next: (users: User[]) => {
+        this.users = users;
         console.log('Users loaded successfully:', users);
         this.areUsersLoading = false;
       },
@@ -60,7 +61,13 @@ export class CommandsComponent implements OnInit {
     });
   }
 
-  getUserById(userId: number): User | undefined {
-    return this.users.find(user => user.id === userId);
+  getUserEmailById(userId: number): string {
+    let userEmail = "Unknown User";
+    this.userService.getUser(userId)
+    const matchingUser = this.users.find(user => user.id === userId);
+    if (matchingUser) {
+      userEmail = matchingUser.email_address;
+    }
+    return userEmail;
   }
 }
