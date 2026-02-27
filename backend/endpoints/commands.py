@@ -52,7 +52,6 @@ def get_latest_command(telescope_id: int) -> Command:
     else:
         raise HTTPException(status_code=404, detail=f"No commands found for telescope ID {telescope_id}.")
 
-
 def post_command(command: CreateCommand) -> Command:
     db = Database()
     _, _ = db.insert(table_name, command.__dict__)

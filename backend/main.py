@@ -187,7 +187,6 @@ def delete_position_endpoint(position_id: int):
 def update_position_endpoint(position_id: int, position: Position):
     return update_position(position_id, position)
 
-
 def main() -> None:
     uvicorn.run("main:app", host='0.0.0.0', port=8000, reload=True)
 
