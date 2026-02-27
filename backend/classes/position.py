@@ -2,7 +2,7 @@ from datetime import datetime
 from pydantic import BaseModel
 
 class CreatePosition(BaseModel):
-    datetime : datetime
+    datetime: datetime
 
 class Position(CreatePosition):
     id: int
