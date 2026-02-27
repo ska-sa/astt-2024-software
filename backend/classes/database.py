@@ -15,37 +15,25 @@ class Database:
         self.cur.executescript("""
         CREATE TABLE IF NOT EXISTS user(
             `id` INTEGER PRIMARY KEY AUTOINCREMENT,
-            `email_address` VARCHAR(255) UNIQUE,
-            `password` VARCHAR(255),
+            `email_address` TEXT UNIQUE,
+            `password` TEXT,
             `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
         );
 
         CREATE TABLE IF NOT EXISTS telescope(
             `id` INTEGER PRIMARY KEY AUTOINCREMENT,
-            `name` VARCHAR(255) UNIQUE,
-            `health_status` VARCHAR(50),
+            `name` TEXT UNIQUE,
+            `health_status` TEXT,
             `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
         );
 
         CREATE TABLE IF NOT EXISTS reading(
             `id` INTEGER PRIMARY KEY AUTOINCREMENT,
-            `telescope_id` INTEGER,
-            `azimuth_angle` DOUBLE,
-            `elevation_angle` DOUBLE,
-            `latitude` DOUBLE,
-            `longitude` DOUBLE,
-            `altitude` DOUBLE,
-            `gyroscope_x` DOUBLE,
-            `gyroscope_y` DOUBLE,
-            `gyroscope_z` DOUBLE,
-            `acceleration_x` DOUBLE,
-            `acceleration_y` DOUBLE,
-            `acceleration_z` DOUBLE,
-            `magnetic_field_x` DOUBLE,
-            `magnetic_field_y` DOUBLE,
-            `magnetic_field_z` DOUBLE,
-            `health_status` VARCHAR(50),
-            `movement_status` VARCHAR(50),
+            `telescope_id` TEXT,
+            `az_angle` DOUBLE,
+            `el_angle` DOUBLE,
+            `health_status` TEXT,
+            `movement_status` TEXT,
             `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
         );
 
@@ -57,8 +45,8 @@ class Database:
 
         CREATE TABLE IF NOT EXISTS command(
             `id` INTEGER PRIMARY KEY AUTOINCREMENT,
-            `user_id` INTERGER,
-            `telescope_id` INTEGER,
+            `user_id` TEXT,
+            `telescope_id` TEXT,
             `target_az_angle` DOUBLE,
             `target_el_angle` DOUBLE,
             `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -66,7 +54,7 @@ class Database:
 
         CREATE TABLE IF NOT EXISTS source(
             `id` INTEGER PRIMARY KEY AUTOINCREMENT,
-            `name` VARCHAR(255) UNIQUE
+            `name` TEXT UNIQUE
         );
     """)
         self.conn.commit()
