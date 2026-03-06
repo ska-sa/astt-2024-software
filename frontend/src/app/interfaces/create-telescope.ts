@@ -1,4 +1,4 @@
 export interface CreateTelescope {
   name: string;
-  health_status: number;
+  health_status: string;
 }

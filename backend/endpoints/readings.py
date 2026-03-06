@@ -89,8 +89,6 @@ def get_readings() -> list[Reading]:
                 telescope_id=telescope_id,
                 azimuth_angle=azimuth_angle,
                 elevation_angle=elevation_angle,
-                health_status=health_status,
-                movement_status=movement_status,
                 latitude=latitude,
                 longitude=longitude,
                 altitude=altitude,
@@ -103,6 +101,8 @@ def get_readings() -> list[Reading]:
                 magnetic_field_x=magnetic_field_x,
                 magnetic_field_y=magnetic_field_y,
                 magnetic_field_z=magnetic_field_z,
+                health_status=health_status,
+                movement_status=movement_status,
                 created_at=datetime.fromisoformat(str(created_at)),
             )
         )

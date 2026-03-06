@@ -14,34 +14,34 @@
               </div>
               <strong>GPS</strong>
               <div class="ps-2">
-                Latitude: {{ reading?.lat }} <br>
-                Longitude: {{ reading?.lon }} <br>
-                Altitude: {{ reading?.alt }} m
+                Latitude: {{ reading?.latitude }} <br>
+                Longitude: {{ reading?.longitude }} <br>
+                Altitude: {{ reading?.altitude }} m
               </div>
               <strong>Accelerometer</strong><br>
               <div class="ps-2">
-                Acceleration X: {{ reading?.acc_x }} m/s²<br>
-                Acceleration Y: {{ reading?.acc_y }} m/s²<br>
-                Acceleration Z: {{ reading?.acc_z }} m/s²
+                Acceleration X: {{ reading?.acceleration_x }} m/s²<br>
+                Acceleration Y: {{ reading?.acceleration_x }} m/s²<br>
+                Acceleration Z: {{ reading?.acceleration_x }} m/s²
               </div>
             </div>
             <div class="col">
               <strong>Magnetometer</strong>
               <div class="ps-2">
-                Magnetic Field X: {{ reading?.mag_x }} T<br>
-                Magnetic Field Y: {{ reading?.mag_y }} T<br>
-                Magnetic Field Z: {{ reading?.mag_z }} T
+                Magnetic Field X: {{ reading?.magnetic_field_x }} T<br>
+                Magnetic Field Y: {{ reading?.magnetic_field_y }} T<br>
+                Magnetic Field Z: {{ reading?.magnetic_field_z }} T
               </div>
               <strong>Rotary Encoder</strong>
               <div class="ps-2">
-                Azimuth Angle: {{ reading?.az_angle }} &deg; <br>
-                Elevation Angle: {{ reading?.el_angle }} &deg;
+                Azimuth Angle: {{ reading?.azimuth_angle }} &deg; <br>
+                Elevation Angle: {{ reading?.elevation_angle }} &deg;
               </div>
               <strong>Gyroscope</strong>
               <div class="ps-2">
-                Gyro X: {{ reading?.gyo_x }} °/s<br>
-                Gyro Y: {{ reading?.gyo_y }} °/s<br>
-                Gyro Z: {{ reading?.gyo_z }} °/s
+                Gyro X: {{ reading?.gyroscope_x }} °/s<br>
+                Gyro Y: {{ reading?.gyroscope_y }} °/s<br>
+                Gyro Z: {{ reading?.gyroscope_z }} °/s
               </div>
             </div>
           </div>
@@ -76,8 +76,8 @@
           -->
           <div *ngIf="isPointing">
             <div class="d-flex justify-content-between align-items-center mt-2">
-                <input class="form-control me-2" type="number" [(ngModel)]="azimuth" placeholder="Azimuth Angle">
-                <input class="form-control" type="number" [(ngModel)]="elevation" placeholder="Elevation Angle">
+                <input class="form-control me-2" type="number" [(ngModel)]="azimuth_angle" placeholder="Azimuth Angle">
+                <input class="form-control" type="number" [(ngModel)]="elevation_angle" placeholder="Elevation Angle">
             </div>
             <button class="btn btn-primary mt-3" (click)="startPointing()">Point</button>
           </div>

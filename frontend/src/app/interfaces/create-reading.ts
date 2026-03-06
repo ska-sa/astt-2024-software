@@ -1,19 +1,19 @@
 export interface CreateReading {
     telescope_id: number;
-    az_angle: number;
-    el_angle: number;
+    azimuth_angle: number;
+    elevation_angle: number;
+    latitude: number;
+    longitude: number;
+    altitude: number;
+    gyroscope_x: number;
+    gyroscope_y: number;
+    gyroscope_z: number;
+    acceleration_x: number;
+    acceleration_y: number;
+    acceleration_z: number;
+    magnetic_field_x: number;
+    magnetic_field_y: number;
+    magnetic_field_z: number;
     health_status: string;
     movement_status: string;
-    mag_x: number;
-    mag_y: number;
-    mag_z: number;
-    acc_x: number;
-    acc_y: number;
-    acc_z: number;
-    gyo_x: number;
-    gyo_y: number;
-    gyo_z: number;
-    lon: number;
-    lat: number;
-    alt: number;
 }

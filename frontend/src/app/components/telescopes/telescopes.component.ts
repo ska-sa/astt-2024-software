@@ -59,7 +59,7 @@ export class TelescopesComponent implements OnInit{
     }
     const newTelescope: CreateTelescope = {
       name: this.newTelescopeName,
-      health_status: 1, // Meaning the telescope is healthy
+      health_status: "OK",
     };
     this.telescopeService.postTelescope(newTelescope).subscribe({
       next: (telescope: Telescope) => {
