@@ -21,7 +21,7 @@
       <tr *ngFor="let command of commands; let i = index">
         <th scope="row"> {{i + 1}} </th>
         <td> {{ getUserEmailById(command.user_id) }} </td>
-        <td> {{ command.telescope_id }} </td>
+        <td> {{ getTelescopeNameById(command.telescope_id) }} </td>
         <td> {{ command.target_az_angle }} &deg;</td>
         <td> {{ command.target_el_angle }} &deg;</td>
         <td> {{ command.created_at | date: 'short' }} </td>

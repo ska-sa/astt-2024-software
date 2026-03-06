@@ -28,7 +28,7 @@
       </ng-container>
       <tr *ngFor="let reading of readings; let index = index;">
         <th scope="row">{{ index }}</th>
-        <td>{{ reading.telescope_id }} {{ getTelescopeNameById(reading.telescope_id) }}</td>
+        <td> {{ getTelescopeNameById(reading.telescope_id) }}</td>
         <td class="text-success">{{ reading.health_status }}</td>
         <td class="text-danger">{{ reading.movement_status ? "Moving" : "Stopped" }}</td>
         <td>{{ reading.azimuth_angle }} &deg;</td>
