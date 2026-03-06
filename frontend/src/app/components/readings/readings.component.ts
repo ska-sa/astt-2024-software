@@ -15,12 +15,14 @@ import { Telescope } from '../../interfaces/telescope';
 })
 export class ReadingsComponent implements OnInit {
   readings: Reading[] = [];
+  telescopes: Telescope[] = [];
   isLoading: boolean = false;
 
   constructor(private readingService: ReadingService, private telescopeService: TelescopeService) { }
 
   ngOnInit(): void {
     this.loadReadings();
+    this.loadTelescopes();
   }
 
   loadReadings(): void {
@@ -31,8 +33,24 @@ export class ReadingsComponent implements OnInit {
         console.log('Readings loaded successfully:', readings);
         this.isLoading = false;
       },
-      error: (error) => {
+      error: (error: Error) => {
         console.error('Error loading readings:', error);
+        this.isLoading = false;
+      }
+    });
+    return;
+  }
+
+  loadTelescopes(): void {
+    this.isLoading = true;
+    this.telescopeService.getTelescopes().subscribe({
+      next: (telescopes: Telescope[]) => {
+        this.telescopes = telescopes;
+        console.log("Tescopes loaded successfully:", telescopes);
+        this.isLoading = false;
+      },
+      error: (error: Error) => {
+        console.log("Error loading telescope:", error);
         this.isLoading = false;
       }
     });
@@ -41,19 +59,13 @@ export class ReadingsComponent implements OnInit {
 
   getTelescopeNameById(telescope_id: number): string {
     let telescopeName = "Unknown Telescope";
-      if (!this.isLoading) {
-        this.isLoading = true;
-        this.telescopeService.getTelescope(telescope_id).subscribe({
-          next: (t: Telescope) => {
-            telescopeName = t.name;
-            console.log('Telescope loaded:', t);
-            this.isLoading = false;
-        },
-        error: (e: Error) => {
-          console.error('Error occured:', e);
-          this.isLoading = false;
-        }
-      });
+    let telescope: Telescope | undefined = this.telescopes.find(
+      (telescope: Telescope) => {
+        return telescope.id == telescope_id;
+      }
+    );
+    if(telescope) {
+      telescopeName = telescope.name;
     }
     return telescopeName;
   }
