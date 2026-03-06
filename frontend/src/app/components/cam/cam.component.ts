@@ -30,8 +30,8 @@ export class CamComponent {
   isPointing = true;
   isPointingPageActive = false;
   isLoading = false;
-  azimuth = 180; // Initial azimuth value
-  elevation = 45; // Initial elevation value
+  azimuth_angle = 180; // Initial azimuth value
+  elevation_angle = 45; // Initial elevation value
   latitude = 40.730610; // Sample latitude value
   longitude = -73.935242; // Sample longitude value
   altitude = 10; // Sample altitude value
@@ -145,7 +145,7 @@ export class CamComponent {
 
           if (this.isDeviceOnline) {
             // Add to history and filter by selected resolution
-            this.readingHistory.push({ timestamp: readingTime, az: reading.az_angle, el: reading.el_angle });
+            this.readingHistory.push({ timestamp: readingTime, az: reading.azimuth_angle, el: reading.elevation_angle });
             this.filterReadingHistory();
             this.updateChartData();
           }
@@ -263,8 +263,8 @@ export class CamComponent {
     const createCommand: CreateCommand = {
       user_id: getUser()?.id ?? 0,
       telescope_id: this.telescopeId ?? 0,
-      target_az_angle: this.azimuth,
-      target_el_angle: this.elevation
+      target_az_angle: this.azimuth_angle,
+      target_el_angle: this.elevation_angle
     }
 
     this.commandService.postCommand(createCommand).subscribe({
@@ -297,8 +297,8 @@ export class CamComponent {
   }
 
   private updateAzimuthElevation(): void {
-    this.azimuth = Math.round((this.knobPosition.x / this.width) * 360);
-    this.elevation = Math.round((this.knobPosition.y / this.height) * 90);
+    this.azimuth_angle = Math.round((this.knobPosition.x / this.width) * 360);
+    this.elevation_angle = Math.round((this.knobPosition.y / this.height) * 90);
   }
 
   private generateGridLines(): { x1: number, y1: number, x2: number, y2: number }[] {

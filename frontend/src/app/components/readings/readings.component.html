@@ -4,7 +4,7 @@
       <th scope="col">ID</th>
       <th scope="col">Telescope Name</th>
       <th scope="col">Heath Status</th>
-      <th scope="col">Movenment Status</th>
+      <th scope="col">Movement Status</th>
       <th scope="col">Azimuth Angle</th>
       <th scope="col">Elevation Angle</th>
       <th scope="col">Created At</th>
@@ -31,8 +31,8 @@
         <td>{{ reading.telescope_id }} {{ getTelescopeNameById(reading.telescope_id) }}</td>
         <td class="text-success">{{ reading.health_status }}</td>
         <td class="text-danger">{{ reading.movement_status ? "Moving" : "Stopped" }}</td>
-        <td>{{ reading.az_angle }} &deg;</td>
-        <td>{{ reading.el_angle }} &deg;</td>
+        <td>{{ reading.azimuth_angle }} &deg;</td>
+        <td>{{ reading.elevation_angle }} &deg;</td>
         <td>{{ reading.created_at }}</td>
       </tr>
     </ng-container>

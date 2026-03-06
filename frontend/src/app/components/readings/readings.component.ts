@@ -41,18 +41,20 @@ export class ReadingsComponent implements OnInit {
 
   getTelescopeNameById(telescope_id: number): string {
     let telescopeName = "Unknown Telescope";
-
-      this.telescopeService.getTelescope(telescope_id).subscribe({
-        next: (t: Telescope) => {
-          telescopeName = t.name;
-          console.log('Telescope loaded:', t);
-          this.isLoading = false;
+      if (!this.isLoading) {
+        this.isLoading = true;
+        this.telescopeService.getTelescope(telescope_id).subscribe({
+          next: (t: Telescope) => {
+            telescopeName = t.name;
+            console.log('Telescope loaded:', t);
+            this.isLoading = false;
         },
         error: (e: Error) => {
           console.error('Error occured:', e);
           this.isLoading = false;
         }
       });
+    }
     return telescopeName;
   }
 }

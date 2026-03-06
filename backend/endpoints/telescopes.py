@@ -25,8 +25,6 @@ def post_telescope(telescope: CreateTelescope) -> Telescope:
     # Read newly inserted telescope from db
     _, db_select_telescope_outputs = db.read(table_name, criteria=telescope.__dict__)
     id, name, health_status, created_at = db_select_telescope_outputs[-1]
-
-    print(f"Created telescope: {created_at}")
     return Telescope(id=int(id), name=str(name), health_status=str(health_status), created_at=datetime.fromisoformat(str(created_at)))
 
 def get_telescope(telescope_id: int) -> Telescope:
