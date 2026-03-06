@@ -4,6 +4,8 @@ import { Command } from '../../interfaces/command';
 import { CommonModule } from '@angular/common';
 import { UserService } from '../../services/user.service';
 import { User } from '../../interfaces/user';
+import { Telescope } from '../../interfaces/telescope';
+import { TelescopeService } from '../../services/telescope.service';
 
 @Component({
   selector: 'app-commands',
@@ -13,60 +15,91 @@ import { User } from '../../interfaces/user';
 })
 export class CommandsComponent implements OnInit {
   isLoading: boolean = false;
-  areCommandsLoading: boolean = false;
-  areUsersLoading: boolean = false;
 
   commands: Command[] = [];
   users: User[] = [];
+  telescopes: Telescope[] = [];
   userEmails: { [key: number]: string } = {};
 
-  constructor(private commandService: CommandService, private userService: UserService) {}
+  constructor(private commandService: CommandService, private userService: UserService, private telescopeService: TelescopeService) {}
 
   ngOnInit(): void {
     this.loadUsers();
+    this.loadTelescopes();
     this.loadCommands();
-    this.isLoading = !this.areCommandsLoading && !this.areUsersLoading;
     this.commands.forEach((command) => {
       this.userEmails[command.user_id] = this.users.find(u => u.id == command.user_id)?.email_address ?? 'Unknown User';
     });
   }
 
   loadCommands(): void {
-    this.areCommandsLoading = true;
+    this.isLoading = true;
     this.commandService.getCommands().subscribe({
       next: (commands: Command[]) => {
         this.commands = commands;
         console.log('Commands loaded successfully:', commands);
-        this.areCommandsLoading = false;
+        this.isLoading = false;
       },
       error: (error) => {
         console.error('Error loading commands:', error);
-        this.areCommandsLoading = false;
+        this.isLoading = false;
       }
     });
   }
 
   loadUsers(): void {
-    this.areUsersLoading = true;
+    this.isLoading = true;
     this.userService.getUsers().subscribe({
       next: (users: User[]) => {
         this.users = users;
         console.log('Users loaded successfully:', users);
-        this.areUsersLoading = false;
+        this.isLoading = false;
       },
       error: (error) => {
         console.error('Error loading users:', error);
-        this.areUsersLoading = false;
+        this.isLoading = false;
       }
     });
   }
 
+    loadTelescopes(): void {
+    this.isLoading = true;
+    this.telescopeService.getTelescopes().subscribe({
+      next: (telescopes: Telescope[]) => {
+        this.telescopes = telescopes;
+        console.log("Tescopes loaded successfully:", telescopes);
+        this.isLoading = false;
+      },
+      error: (error: Error) => {
+        console.log("Error loading telescope:", error);
+        this.isLoading = false;
+      }
+    });
+    return;
+  }
+
+  getTelescopeNameById(telescope_id: number): string {
+    let telescopeName = "Unknown Telescope";
+    let telescope: Telescope | undefined = this.telescopes.find(
+      (telescope: Telescope) => {
+        return telescope.id == telescope_id;
+      }
+    );
+    if(telescope) {
+      telescopeName = telescope.name;
+    }
+    return telescopeName;
+  }
+
   getUserEmailById(userId: number): string {
     let userEmail = "Unknown User";
-    this.userService.getUser(userId)
-    const matchingUser = this.users.find(user => user.id === userId);
-    if (matchingUser) {
-      userEmail = matchingUser.email_address;
+    const user = this.users.find(
+      (user: User) => {
+        return user.id === userId
+      }
+    );
+    if (user) {
+      userEmail = user.email_address;
     }
     return userEmail;
   }
