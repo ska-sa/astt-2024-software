@@ -67,10 +67,10 @@ class Database:
         CREATE TABLE IF NOT EXISTS source(
             `id` INTEGER PRIMARY KEY AUTOINCREMENT,
             `source_name` VARCHAR(255) UNIQUE,
-            `initial_RightAscension` DOUBLE,
-            `initial_Declination` DOUBLE,
-            `rate_RightAscension` DOUBLE,
-            `rate_Declination` DOUBLE,
+            `initial_right_ascension` DOUBLE,
+            `initial_declination` DOUBLE,
+            `rate_right_ascension` DOUBLE,
+            `rate_declination` DOUBLE,
             `reset_period` DOUBLE,
             `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
         );
