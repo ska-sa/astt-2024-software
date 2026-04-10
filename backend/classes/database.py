@@ -66,7 +66,13 @@ class Database:
 
         CREATE TABLE IF NOT EXISTS source(
             `id` INTEGER PRIMARY KEY AUTOINCREMENT,
-            `name` VARCHAR(255) UNIQUE
+            `source_name` VARCHAR(255) UNIQUE,
+            `initial_RightAscension` DOUBLE,
+            `initial_Declination` DOUBLE,
+            `rate_RightAscension` DOUBLE,
+            `rate_Declination` DOUBLE,
+            `reset_period` DOUBLE,
+            `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
         );
     """)
         self.conn.commit()
