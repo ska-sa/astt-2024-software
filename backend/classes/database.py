@@ -63,10 +63,20 @@ class Database:
             `target_el_angle` DOUBLE,
             `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
         );
+                               
+        CREATE TABLE IF NOT EXISTS source (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT UNIQUE NOT NULL,
 
-        CREATE TABLE IF NOT EXISTS source(
-            `id` INTEGER PRIMARY KEY AUTOINCREMENT,
-            `name` VARCHAR(255) UNIQUE
+            initial_right_ascension REAL NOT NULL,
+            initial_declination REAL NOT NULL,
+
+            right_ascension_rate REAL DEFAULT 0,
+            declination_rate REAL DEFAULT 0,
+
+            reset_period_days REAL DEFAULT 0,
+
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         );
     """)
         self.conn.commit()

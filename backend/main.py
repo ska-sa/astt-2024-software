@@ -5,13 +5,11 @@ from classes.telescope import CreateTelescope, Telescope
 from classes.reading import CreateReading, Reading
 from classes.source import CreateSource, Source
 from classes.command import CreateCommand, Command
-from classes.position import CreatePosition, Position
 from endpoints.users import get_users, post_user, get_user, auth_user, delete_user, update_user
 from endpoints.telescopes import get_telescopes, post_telescope, get_telescope, delete_telescope, update_telescope
 from endpoints.readings import get_reading, get_readings, post_reading, update_reading, delete_reading, get_latest_reading
 from endpoints.sources import get_sources, post_source, get_source, delete_source, update_source
 from endpoints.commands import get_commands, post_command, get_command, delete_command, update_command, get_latest_command
-from endpoints.positions import get_positions, post_position, get_position, delete_position, update_position
 import uvicorn
 
 BASE_URL = "/api/v1"
@@ -164,28 +162,6 @@ def delete_command_endpoint(command_id: int):
 @app.put(f"{BASE_URL}/commands/{{command_id}}", response_model=Command)
 def update_command_endpoint(command_id: int, command: Command):
     return update_command(command_id, command)
-
-"""Position"""
-
-@app.get(f"{BASE_URL}/positions", response_model=list[Position])
-def get_positions_endpoint():
-    return get_positions()
-
-@app.post(f"{BASE_URL}/positions", response_model=Position)
-def post_position_endpoint(position: CreatePosition):
-    return post_position(position)
-
-@app.get(f"{BASE_URL}/positions/{{position_id}}", response_model=Position)
-def get_position_endpoint(position_id: int):
-    return get_position(position_id)
-
-@app.delete(f"{BASE_URL}/positions/{{position_id}}", response_model=Position)
-def delete_position_endpoint(position_id: int):
-    return delete_position(position_id)
-
-@app.put(f"{BASE_URL}/positions/{{position_id}}", response_model=Position)
-def update_position_endpoint(position_id: int, position: Position):
-    return update_position(position_id, position)
 
 def main() -> None:
     uvicorn.run("main:app", host='0.0.0.0', port=8000, reload=True)
