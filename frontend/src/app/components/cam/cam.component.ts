@@ -66,10 +66,10 @@ export class CamComponent {
     },
     legend: {
       cursor: "pointer",
-      itemclick: function(e: any){
-        if (typeof(e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
+      itemclick: function (e: any) {
+        if (typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
           e.dataSeries.visible = false;
-        } else{
+        } else {
           e.dataSeries.visible = true;
         }
         e.chart.render();
@@ -258,7 +258,19 @@ export class CamComponent {
     console.log(`Started tracking source ${this.selectedSource}`);
   }
 
+  clipAzimuthAngle(): void {
+    this.azimuth_angle = Math.max(0, Math.min(360, this.azimuth_angle));
+    return;
+  }
+
+  clipElevationAngle(): void {
+    this.elevation_angle = Math.max(0, Math.min(90, this.elevation_angle));
+    return;
+  }
+
   startPointing(): void {
+    this.clipAzimuthAngle();
+    this.clipElevationAngle();
     this.isLoading = true;
     const createCommand: CreateCommand = {
       user_id: getUser()?.id ?? 0,
@@ -312,7 +324,7 @@ export class CamComponent {
     return gridLines;
   }
 
-  public getHealthStatusClass() : string{
+  public getHealthStatusClass(): string {
     if (this.reading?.health_status?.includes('nominal')) {
       return 'text-success';
     } else if (this.reading?.health_status?.includes('warning')) {
