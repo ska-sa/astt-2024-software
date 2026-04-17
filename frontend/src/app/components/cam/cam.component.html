@@ -75,11 +75,41 @@
           </div>
           -->
           <div *ngIf="isPointing">
-            <div class="d-flex justify-content-between align-items-center mt-2">
-                <input class="form-control me-2" type="number" [(ngModel)]="azimuth_angle" placeholder="Azimuth Angle">
-                <input class="form-control" type="number" [(ngModel)]="elevation_angle" placeholder="Elevation Angle">
+            <div class="row mt-2">
+              <div class="col">
+                <label class="form-label">Azimuth Angle (0° - 360°)</label>
+                <input
+                  class="form-control"
+                  type="number"
+                  [(ngModel)]="azimuth_angle"
+                  min="0"
+                  max="360"
+                  placeholder="0 - 360"
+                  (onChange)="clipAzimuthAngle()"
+                >
+              </div>
+
+              <div class="col">
+                <label class="form-label">Elevation Angle (0° - 90°)</label>
+                <input
+                  class="form-control"
+                  type="number"
+                  [(ngModel)]="elevation_angle"
+                  min="0"
+                  max="90"
+                  placeholder="0 - 90"
+                  (onCannge)="clipElevationAngle()"
+                >
+                <!--TODO: Clip on value change-->
+              </div>
             </div>
-            <button class="btn btn-primary mt-3" (click)="startPointing()">Point</button>
+            <div class="text-center">
+              <small class="text-center text-muted">
+                Azimuth wraps around horizon, Elevation is vertical angle from ground
+              </small>
+            </div>
+            
+            <button class="btn btn-primary" (click)="startPointing()">Point</button>
           </div>
           <div *ngIf="!isPointing" class="mt-2">
             <label for="source-select">Select Source:</label>
