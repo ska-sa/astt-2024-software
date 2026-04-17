@@ -2,12 +2,12 @@ from datetime import datetime
 from pydantic import BaseModel
 
 class CreateSource(BaseModel):
-    source_name: str
+    name: str
     initial_right_ascension: float
     initial_declination: float
-    rate_right_ascension: float
-    rate_declination: float
-    reset_period: float
+    right_ascension_rate: float
+    declination_rate: float
+    reset_period_days: int
 
 class Source(CreateSource):
     id: int
