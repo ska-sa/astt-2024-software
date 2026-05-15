@@ -67,15 +67,15 @@ class Database:
         CREATE TABLE IF NOT EXISTS source (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT UNIQUE NOT NULL,
-
-            initial_right_ascension REAL NOT NULL,
-            initial_declination REAL NOT NULL,
-
-            right_ascension_rate REAL DEFAULT 0,
-            declination_rate REAL DEFAULT 0,
-
-            reset_period_days REAL DEFAULT 0,
-
+            m_1 REAL NOT NULL,
+            m_2 REAL NOT NULL,
+            c_1 REAL NOT NULL,
+            c_2 REAL NOT NULL,
+            T_ra REAL NOT NULL,
+            A REAL NOT NULL,
+            phi REAL NOT NULL,
+            D REAL NOT NULL,
+            T_dec REAL NOT NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         );
     """)

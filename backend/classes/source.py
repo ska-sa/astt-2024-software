@@ -3,11 +3,15 @@ from pydantic import BaseModel
 
 class CreateSource(BaseModel):
     name: str
-    initial_right_ascension: float
-    initial_declination: float
-    right_ascension_rate: float
-    declination_rate: float
-    reset_period_days: int
+    m_1: float
+    m_2: float
+    c_1: float
+    c_2: float
+    T_ra: float
+    A: float
+    phi: float
+    D: float
+    T_dec: float
 
 class Source(CreateSource):
     id: int
