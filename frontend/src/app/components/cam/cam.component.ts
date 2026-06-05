@@ -10,6 +10,8 @@ import { ActivatedRoute } from '@angular/router';
 import { Reading } from '../../interfaces/reading';
 import { ReadingService } from '../../services/reading.service';
 import { interval, Subscription, switchMap } from 'rxjs';
+import { SourceService } from '../../services/source.service';
+import { Source } from '../../interfaces/source';
 
 @Component({
   selector: 'app-cam',
@@ -41,6 +43,7 @@ export class CamComponent {
     { id: 2, name: 'Moon' },
     { id: 3, name: 'Mars' }
   ];
+  dbSources: Source[] = [];
   selectedSource: number = this.sources[0].id;
   telescopeId: number | null = null;
 
@@ -94,7 +97,12 @@ export class CamComponent {
   };
 
 
-  constructor(private commandService: CommandService, private route: ActivatedRoute, private readingService: ReadingService) {
+  constructor(
+    private commandService: CommandService, 
+    private route: ActivatedRoute, 
+    private readingService: ReadingService,
+    private sourceService: SourceService,
+  ) {
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
       this.telescopeId = id ? +id : null;
@@ -250,6 +258,8 @@ export class CamComponent {
   }
 
   track(): void {
+    console.log("Tracking clicked!");
+    this.loadSources();
     this.isPointing = false;
   }
 
@@ -334,5 +344,17 @@ export class CamComponent {
     } else {
       return '';
     }
+  }
+
+  loadSources(): void {
+    this.sourceService.getSources().subscribe({
+      next: (sources: Source[]) => {
+        this.dbSources = sources;
+        console.log('Sources loaded successfully:', sources);
+      },
+      error: (error) => {
+        console.error('Error loading sources:', error);
+      }
+    });
   }
 }
