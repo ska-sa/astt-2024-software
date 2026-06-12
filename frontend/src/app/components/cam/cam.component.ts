@@ -12,6 +12,7 @@ import { ReadingService } from '../../services/reading.service';
 import { interval, Subscription, switchMap } from 'rxjs';
 import { SourceService } from '../../services/source.service';
 import { Source } from '../../interfaces/source';
+import { CreateSource } from '../../interfaces/create-source';
 
 @Component({
   selector: 'app-cam',
@@ -38,14 +39,15 @@ export class CamComponent {
   longitude = -73.935242; // Sample longitude value
   altitude = 10; // Sample altitude value
   gridLines = this.generateGridLines();
-  sources = [
-    { id: 1, name: 'Sun' },
-    { id: 2, name: 'Moon' },
-    { id: 3, name: 'Mars' }
-  ];
+
   dbSources: Source[] = [];
-  selectedSource: number = this.sources[0].id;
+  selectedSource: Source | null = null;
   telescopeId: number | null = null;
+
+  // dialog state
+  showSourceDialog = false;
+  isEditMode = false;
+  dialogSource: CreateSource = this.emptySource();
 
   chartData: { x: Date, y: number }[] = [];
 
@@ -98,8 +100,8 @@ export class CamComponent {
 
 
   constructor(
-    private commandService: CommandService, 
-    private route: ActivatedRoute, 
+    private commandService: CommandService,
+    private route: ActivatedRoute,
     private readingService: ReadingService,
     private sourceService: SourceService,
   ) {
@@ -108,10 +110,13 @@ export class CamComponent {
       this.telescopeId = id ? +id : null;
     });
   }
+
   ngOnInit(): void {
     this.loadReading();
     this.startPollingReadings();
+    this.getSources();
   }
+
   pollSubscription: Subscription | null = null;
   isDeviceOnline = true;
   resolutionOptions = [
@@ -193,8 +198,6 @@ export class CamComponent {
         dataPoints: elDataPoints
       }
     ];
-
-    // Update x-axis format based on resolution (simplified)
     if (this.selectedResolution.durationMs < 24 * 60 * 60 * 1000) {
       this.chartOptions.axisX.valueFormatString = "HH:mm:ss";
       this.chartOptions.axisX.intervalType = "minute";
@@ -258,14 +261,13 @@ export class CamComponent {
   }
 
   track(): void {
-    console.log("Tracking clicked!");
-    this.loadSources();
     this.isPointing = false;
   }
 
-  startTracking(): void {
-    // Implement tracking logic here
-    console.log(`Started tracking source ${this.selectedSource}`);
+  // TODO: source selection - tracking command will be wired up in a later PR
+  selectSource(source: Source): void {
+    this.selectedSource = source;
+    console.log('Selected source:', source);
   }
 
   clipAzimuthAngle(): void {
@@ -300,7 +302,75 @@ export class CamComponent {
         this.isLoading = false;
       }
     });
-    return;
+  }
+
+  // dialog helpers
+
+  emptySource(): CreateSource {
+    return { name: '', m_1: 0, m_2: 0, c_1: 0, c_2: 0, T_ra: 0, A: 0, phi: 0, D: 0, T_dec: 0 };
+  }
+
+  openAddDialog(): void {
+    this.isEditMode = false;
+    this.dialogSource = this.emptySource();
+    this.showSourceDialog = true;
+  }
+
+  openEditDialog(source: Source): void {
+    this.isEditMode = true;
+    this.dialogSource = { ...source };
+    this.showSourceDialog = true;
+  }
+
+  closeDialog(): void {
+    this.showSourceDialog = false;
+  }
+
+  saveSource(): void {
+    if (this.isEditMode && this.selectedSource) {
+      const updated: Source = { ...this.selectedSource, ...this.dialogSource };
+      this.sourceService.updateSource(this.selectedSource.id, updated).subscribe({
+        next: (source: Source) => {
+          const index = this.dbSources.findIndex(s => s.id === source.id);
+          if (index !== -1) this.dbSources[index] = source;
+          this.closeDialog();
+        },
+        error: (error) => console.error('Error updating source:', error)
+      });
+    } else {
+      this.sourceService.postSource(this.dialogSource).subscribe({
+        next: (source: Source) => {
+          this.dbSources.push(source);
+          this.closeDialog();
+        },
+        error: (error) => console.error('Error adding source:', error)
+      });
+    }
+  }
+
+  getSources(): void {
+    this.sourceService.getSources().subscribe({
+      next: (sources: Source[]) => {
+        this.dbSources = sources;
+      },
+      error: (error) => console.error('Error loading sources:', error)
+    });
+  }
+
+  deleteSource(source: Source): void {
+    this.sourceService.deleteSource(source.id).subscribe({
+      next: () => {
+        this.dbSources = this.dbSources.filter(s => s.id !== source.id);
+        if (this.selectedSource?.id === source.id) this.selectedSource = null;
+      },
+      error: (error) => console.error('Error deleting source:', error)
+    });
+  }
+
+  startTracking(): void {
+    if (!this.selectedSource) return;
+    console.log('Tracking source:', this.selectedSource);
+    // tracking command will be wired in a later PR
   }
 
   private updateKnobPosition(event: MouseEvent): void {
