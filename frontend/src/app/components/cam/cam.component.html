@@ -98,7 +98,9 @@
           <div *ngIf="!isPointing" class="mt-2">
             <div class="d-flex justify-content-between align-items-center mb-2">
               <span class="fw-bold">Sources</span>
-              <button class="btn btn-sm btn-outline-primary" (click)="openAddDialog()">+ Add Source</button>
+              <button class="btn btn-sm btn-success" (click)="openAddDialog()">
+                <i class="fa-solid fa-plus"></i>
+              </button>
             </div>
 
             <div *ngIf="dbSources.length === 0" class="text-muted">
@@ -115,8 +117,12 @@
               >
                 <span>{{ source.name }}</span>
                 <div class="d-flex gap-2" (click)="$event.stopPropagation()">
-                  <button class="btn btn-sm btn-outline-secondary" (click)="openEditDialog(source)" title="Edit">&#9998;</button>
-                  <button class="btn btn-sm btn-outline-danger" (click)="deleteSource(source)" title="Delete">&#128465;</button>
+                  <button class="btn btn-sm btn-dark" (click)="openEditDialog(source)" title="Edit">
+                    <i class="fa-solid fa-pen"></i>
+                  </button>
+                  <button class="btn btn-sm btn-danger" (click)="deleteSource(source)" title="Delete">
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
                 </div>
               </div>
             </div>
