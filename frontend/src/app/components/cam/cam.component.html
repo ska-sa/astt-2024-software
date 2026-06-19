@@ -8,21 +8,21 @@
           </div>
           <div class="row">
             <div class="col">
-              <strong>Health</strong> 
+              <strong>Health</strong>
               <div class="ps-2">
                 Status: <span [ngClass]="getHealthStatusClass()">{{ reading?.health_status }}</span>
               </div>
               <strong>GPS</strong>
               <div class="ps-2">
-                Latitude: {{ reading?.latitude }} <br>
-                Longitude: {{ reading?.longitude }} <br>
+                Latitude: {{ reading?.latitude }}<br>
+                Longitude: {{ reading?.longitude }}<br>
                 Altitude: {{ reading?.altitude }} m
               </div>
-              <strong>Accelerometer</strong><br>
+              <strong>Accelerometer</strong>
               <div class="ps-2">
                 Acceleration X: {{ reading?.acceleration_x }} m/s²<br>
-                Acceleration Y: {{ reading?.acceleration_x }} m/s²<br>
-                Acceleration Z: {{ reading?.acceleration_x }} m/s²
+                Acceleration Y: {{ reading?.acceleration_y }} m/s²<br>
+                Acceleration Z: {{ reading?.acceleration_z }} m/s²
               </div>
             </div>
             <div class="col">
@@ -34,8 +34,8 @@
               </div>
               <strong>Rotary Encoder</strong>
               <div class="ps-2">
-                Azimuth Angle: {{ reading?.azimuth_angle }} &deg; <br>
-                Elevation Angle: {{ reading?.elevation_angle }} &deg;
+                Azimuth Angle: {{ reading?.azimuth_angle }}&deg;<br>
+                Elevation Angle: {{ reading?.elevation_angle }}&deg;
               </div>
               <strong>Gyroscope</strong>
               <div class="ps-2">
@@ -49,31 +49,19 @@
       </div>
     </div>
   </div>
+
   <div class="row">
     <div class="col-12 col-md-8 offset-md-2 mt-2">
       <div class="card">
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center mb-3">
             <h5>Control Panel</h5>
-            <div>
-              <div class="btn-group">
-                <button class="btn btn-primary" (click)="point()" [ngClass]="{'active': isPointing}">Point</button>
-                <button class="btn btn-primary" (click)="track()" [ngClass]="{'active': !isPointing}">Track</button>
-              </div>
+            <div class="btn-group">
+              <button class="btn btn-primary" (click)="point()" [ngClass]="{'active': isPointing}">Point</button>
+              <button class="btn btn-primary" (click)="track()" [ngClass]="{'active': !isPointing}">Track</button>
             </div>
           </div>
-          <!--
-          <div class="joystick-container text-center" (mousedown)="startDrag($event)" (mouseup)="stopDrag()" (mouseleave)="stopDrag()" (mousemove)="onMouseMove($event)">
-            <svg [attr.width]="width" [attr.height]="height" viewBox="0 0 360 90">
-              <g>
-                <rect x="0" y="0" [attr.width]="width" [attr.height]="height" fill="none" stroke="gray" stroke-width="1" />
-                <line *ngFor="let line of gridLines" [attr.x1]="line.x1" [attr.y1]="line.y1" [attr.x2]="line.x2" [attr.y2]="line.y2" stroke="gray" stroke-width="1" />
-                <circle [attr.cx]="azimuth" [attr.cy]="elevation" r="5" fill="red" />
-              </g>
-            </svg>
-            <div class="joystick-knob" [ngStyle]="{'transform': 'translate(' + knobPosition.x + 'px, ' + knobPosition.y + 'px)'}"></div>
-          </div>
-          -->
+
           <div *ngIf="isPointing">
             <div class="row mt-2">
               <div class="col">
@@ -85,10 +73,9 @@
                   min="0"
                   max="360"
                   placeholder="0 - 360"
-                  (onChange)="clipAzimuthAngle()"
+                  (change)="clipAzimuthAngle()"
                 >
               </div>
-
               <div class="col">
                 <label class="form-label">Elevation Angle (0° - 90°)</label>
                 <input
@@ -98,30 +85,58 @@
                   min="0"
                   max="90"
                   placeholder="0 - 90"
-                  (onCannge)="clipElevationAngle()"
+                  (change)="clipElevationAngle()"
                 >
-                <!--TODO: Clip on value change-->
               </div>
             </div>
             <div class="text-center">
-              <small class="text-center text-muted">
-                Azimuth wraps around horizon, Elevation is vertical angle from ground
-              </small>
+              <small class="text-muted">Azimuth wraps around horizon, Elevation is vertical angle from ground</small>
             </div>
-            
-            <button class="btn btn-primary" (click)="startPointing()">Point</button>
+            <button class="btn btn-primary mt-2" (click)="startPointing()">Point</button>
           </div>
+
           <div *ngIf="!isPointing" class="mt-2">
-            <label for="source-select">Select Source:</label>
-            <select class="form-control" id="source-select" [(ngModel)]="selectedSource">
-              <option *ngFor="let source of sources" [value]="source.id">{{ source.name }}</option>
-            </select>
-            <button class="btn btn-primary mt-2" (click)="startTracking()">Track</button>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="fw-bold">Sources</span>
+              <button class="btn btn-sm btn-success" (click)="openAddDialog()">
+                <i class="fa-solid fa-plus"></i>
+              </button>
+            </div>
+
+            <div *ngIf="dbSources.length === 0" class="text-muted">
+              No sources yet. Add one to start tracking.
+            </div>
+
+            <div class="list-group">
+              <div
+                *ngFor="let source of dbSources"
+                class="list-group-item d-flex justify-content-between align-items-center"
+                [ngClass]="{'active': selectedSource?.id === source.id}"
+                style="cursor: pointer;"
+                (click)="selectSource(source)"
+              >
+                <span>{{ source.name }}</span>
+                <div class="d-flex gap-2" (click)="$event.stopPropagation()">
+                  <button class="btn btn-sm btn-dark" (click)="openEditDialog(source)" title="Edit">
+                    <i class="fa-solid fa-pen"></i>
+                  </button>
+                  <button class="btn btn-sm btn-danger" (click)="deleteSource(source)" title="Delete">
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div *ngIf="selectedSource" class="mt-2">
+              <small class="text-muted">Selected: {{ selectedSource.name }}</small><br>
+              <button class="btn btn-primary mt-1" (click)="startTracking()">Track</button>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
+
   <div class="row">
     <div class="col-12 col-md-8 offset-md-2 mt-2">
       <div class="card">
@@ -148,6 +163,72 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- source dialog -->
+<div class="modal d-block" tabindex="-1" *ngIf="showSourceDialog" style="background: rgba(0,0,0,0.4);">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ isEditMode ? 'Edit Source' : 'Add Source' }}</h5>
+        <button type="button" class="btn-close" (click)="closeDialog()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-2">
+          <label class="form-label">Name</label>
+          <input class="form-control" type="text" [(ngModel)]="dialogSource.name" placeholder="e.g. Sun">
+        </div>
+        <div class="row">
+          <div class="col mb-2">
+            <label class="form-label">m_1</label>
+            <input class="form-control" type="number" [(ngModel)]="dialogSource.m_1">
+          </div>
+          <div class="col mb-2">
+            <label class="form-label">m_2</label>
+            <input class="form-control" type="number" [(ngModel)]="dialogSource.m_2">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col mb-2">
+            <label class="form-label">c_1</label>
+            <input class="form-control" type="number" [(ngModel)]="dialogSource.c_1">
+          </div>
+          <div class="col mb-2">
+            <label class="form-label">c_2</label>
+            <input class="form-control" type="number" [(ngModel)]="dialogSource.c_2">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col mb-2">
+            <label class="form-label">T_ra</label>
+            <input class="form-control" type="number" [(ngModel)]="dialogSource.T_ra">
+          </div>
+          <div class="col mb-2">
+            <label class="form-label">A</label>
+            <input class="form-control" type="number" [(ngModel)]="dialogSource.A">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col mb-2">
+            <label class="form-label">phi</label>
+            <input class="form-control" type="number" [(ngModel)]="dialogSource.phi">
+          </div>
+          <div class="col mb-2">
+            <label class="form-label">D</label>
+            <input class="form-control" type="number" [(ngModel)]="dialogSource.D">
+          </div>
+        </div>
+        <div class="mb-2">
+          <label class="form-label">T_dec</label>
+          <input class="form-control" type="number" [(ngModel)]="dialogSource.T_dec">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeDialog()">Cancel</button>
+        <button class="btn btn-primary" (click)="saveSource()">Save</button>
       </div>
     </div>
   </div>
