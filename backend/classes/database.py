@@ -57,26 +57,37 @@ class Database:
 
         CREATE TABLE IF NOT EXISTS command(
             `id` INTEGER PRIMARY KEY AUTOINCREMENT,
-            `user_id` INTERGER,
-            `telescope_id` INTEGER,
-            `target_az_angle` DOUBLE,
-            `target_el_angle` DOUBLE,
+            `user_id` INTEGER NOT NULL,
+            `telescope_id` INTEGER NOT NULL,
+            `command_type` VARCHAR(50) NOT NULL,
+            `target_az_angle` DOUBLE DEFAULT NULL,
+            `target_el_angle` DOUBLE DEFAULT NULL,
+            `name` TEXT UNIQUE DEFAULT NULL,
+            `m_1` REAL DEFAULT NULL,
+            `m_2` REAL DEFAULT NULL,
+            `c_1` REAL DEFAULT NULL,
+            `c_2` REAL DEFAULT NULL,
+            `T_ra` REAL DEFAULT NULL,
+            `A` REAL DEFAULT NULL,
+            `phi` REAL DEFAULT NULL,
+            `D` REAL DEFAULT NULL,
+            `T_dec` REAL DEFAULT NULL,
             `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
         );
                                
         CREATE TABLE IF NOT EXISTS source (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT UNIQUE NOT NULL,
-            m_1 REAL NOT NULL,
-            m_2 REAL NOT NULL,
-            c_1 REAL NOT NULL,
-            c_2 REAL NOT NULL,
-            T_ra REAL NOT NULL,
-            A REAL NOT NULL,
-            phi REAL NOT NULL,
-            D REAL NOT NULL,
-            T_dec REAL NOT NULL,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            `id` INTEGER PRIMARY KEY AUTOINCREMENT,
+            `name` TEXT UNIQUE NOT NULL,
+            `m_1` REAL NOT NULL,
+            `m_2` REAL NOT NULL,
+            `c_1` REAL NOT NULL,
+            `c_2` REAL NOT NULL,
+            `T_ra` REAL NOT NULL,
+            `A` REAL NOT NULL,
+            `phi` REAL NOT NULL,
+            `D` REAL NOT NULL,
+            `T_dec` REAL NOT NULL,
+            `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
         );
     """)
         self.conn.commit()
