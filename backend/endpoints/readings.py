@@ -163,6 +163,61 @@ def get_latest_reading(telescope_id: int) -> Reading:
             detail=f"No readings found for telescope ID {telescope_id}.",
         )
 
+def get_readings_in_range(telescope_id: int, start: str, end: str) -> list[Reading]:
+    db = Database()
+    sql = "SELECT * FROM `reading` WHERE `telescope_id` = ? AND `created_at` BETWEEN ? AND ? ORDER BY `created_at` ASC"
+    db.cur.execute(sql, (telescope_id, start, end))
+    db_select_reading_outputs = db.cur.fetchall()
+
+    readings = []
+    for db_select_reading_output in db_select_reading_outputs:
+        (
+            id,
+            telescope_id,
+            azimuth_angle,
+            elevation_angle,
+            latitude,
+            longitude,
+            altitude,
+            gyroscope_x,
+            gyroscope_y,
+            gyroscope_z,
+            acceleration_x,
+            acceleration_y,
+            acceleration_z,
+            magnetic_field_x,
+            magnetic_field_y,
+            magnetic_field_z,
+            health_status,
+            movement_status,
+            created_at,
+        ) = db_select_reading_output
+
+        readings.append(
+            Reading(
+                id=id,
+                telescope_id=telescope_id,
+                azimuth_angle=azimuth_angle,
+                elevation_angle=elevation_angle,
+                latitude=latitude,
+                longitude=longitude,
+                altitude=altitude,
+                gyroscope_x=gyroscope_x,
+                gyroscope_y=gyroscope_y,
+                gyroscope_z=gyroscope_z,
+                acceleration_x=acceleration_x,
+                acceleration_y=acceleration_y,
+                acceleration_z=acceleration_z,
+                magnetic_field_x=magnetic_field_x,
+                magnetic_field_y=magnetic_field_y,
+                magnetic_field_z=magnetic_field_z,
+                health_status=health_status,
+                movement_status=movement_status,
+                created_at=datetime.fromisoformat(str(created_at)),
+            )
+        )
+    return readings
+
 def post_reading(reading: CreateReading) -> Reading:
     db = Database()
     _, _ = db.insert(table_name, reading.__dict__)
