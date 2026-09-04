@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   astt-software-backend-service:
     container_name: astt-software-backend-container

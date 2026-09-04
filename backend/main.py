@@ -7,7 +7,7 @@ from classes.source import CreateSource, Source
 from classes.command import CreateCommand, Command
 from endpoints.users import get_users, post_user, get_user, auth_user, delete_user, update_user
 from endpoints.telescopes import get_telescopes, post_telescope, get_telescope, delete_telescope, update_telescope
-from endpoints.readings import get_reading, get_readings, post_reading, update_reading, delete_reading, get_latest_reading
+from endpoints.readings import get_reading, get_readings, get_readings_in_range, post_reading, update_reading, delete_reading, get_latest_reading
 from endpoints.sources import get_sources, post_source, get_source, delete_source, update_source
 from endpoints.commands import get_commands, post_command, get_command, delete_command, update_command, get_latest_command
 import uvicorn
@@ -90,6 +90,11 @@ def update_telescope_endpoint(telescope_id: int, telescope: Telescope):
 @app.get(f"{BASE_URL}/readings", response_model=list[Reading])
 def get_readings_endpoint():
     return get_readings()
+
+# curl -X GET -H "Content-Type: application/json" -d '{}' "http://127.0.0.1:8000/api/v1/readings/1/range?start=2026-07-17%2000:00:00&end=2026-07-17%2023:59:59"
+@app.get(f"{BASE_URL}/readings/{{telescope_id}}/range", response_model=list[Reading])
+def get_readings_in_range_endpoint(telescope_id: int, start: str, end: str):
+    return get_readings_in_range(telescope_id, start, end)
 
 # curl -X POST -H "Content-Type: application/json" -d '{"email_address": "ska@sarao.ac.za", "password": "hlabisa"}' "http://127.0.0.1:8000/api/v1/telescopes"
 @app.post(f"{BASE_URL}/readings", response_model=Reading)

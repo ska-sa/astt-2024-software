@@ -2,7 +2,7 @@ import { CreateReading } from "./create-reading";
 
 export interface Reading {
     id: number;
-    created_at: Date;
+    created_at: string | null;
     telescope_id: number;
     azimuth_angle: number;
     elevation_angle: number;
@@ -21,4 +21,3 @@ export interface Reading {
     health_status: string;
     movement_status: string;
 }
-

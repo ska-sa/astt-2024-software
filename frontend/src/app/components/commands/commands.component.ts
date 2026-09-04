@@ -103,4 +103,16 @@ export class CommandsComponent implements OnInit {
     }
     return userEmail;
   }
+
+  getCommandDetails(command: Command): string {
+    if (command.command_type === 'point' && command.point) {
+      return `Azimuth: ${command.point.target_az_angle}°, Elevation: ${command.point.target_el_angle}°`;
+    }
+
+    if (command.command_type === 'track' && command.track) {
+      return `Source: ${command.track.source.name}`;
+    }
+
+    return '-';
+  }
 }

@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { CanvasJSAngularChartsModule, CanvasJS } from '@canvasjs/angular-charts';
 import { FormsModule } from '@angular/forms';
 import { CreateCommand } from '../../interfaces/create-command';
 import { Command } from '../../interfaces/command';
@@ -18,7 +17,6 @@ import { CreateSource } from '../../interfaces/create-source';
   selector: 'app-cam',
   imports: [
     CommonModule,
-    CanvasJSAngularChartsModule,
     FormsModule,
   ],
   templateUrl: './cam.component.html',
@@ -33,6 +31,7 @@ export class CamComponent {
   isPointing = true;
   isPointingPageActive = false;
   isLoading = false;
+  commandMessage = '';
   azimuth_angle = 180; // Initial azimuth value
   elevation_angle = 45; // Initial elevation value
   latitude = 40.730610; // Sample latitude value
@@ -48,56 +47,6 @@ export class CamComponent {
   showSourceDialog = false;
   isEditMode = false;
   dialogSource: CreateSource = this.emptySource();
-
-  chartData: { x: Date, y: number }[] = [];
-
-  chartOptions = {
-    animationEnabled: true,
-    theme: "light2",
-    title: {
-      text: "Azimuth & Elevation Angle"
-    },
-    axisX: {
-      valueFormatString: "MMM",
-      intervalType: "month",
-      interval: 1
-    },
-    axisY: {
-      title: "Angle",
-      suffix: "°"
-    },
-    toolTip: {
-      shared: true
-    },
-    legend: {
-      cursor: "pointer",
-      itemclick: function (e: any) {
-        if (typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
-          e.dataSeries.visible = false;
-        } else {
-          e.dataSeries.visible = true;
-        }
-        e.chart.render();
-      }
-    },
-    data: [
-      {
-        type: "line",
-        name: "Azimuth",
-        showInLegend: true,
-        yValueFormatString: "#,###°",
-        dataPoints: [] as { x: Date, y: number }[]
-      },
-      {
-        type: "line",
-        name: "Elevation",
-        showInLegend: true,
-        yValueFormatString: "#,###°",
-        dataPoints: [] as { x: Date, y: number }[]
-      }
-    ]
-  };
-
 
   constructor(
     private commandService: CommandService,
@@ -118,26 +67,16 @@ export class CamComponent {
   }
 
   pollSubscription: Subscription | null = null;
-  isDeviceOnline = true;
-  resolutionOptions = [
-    { label: '1m', durationMs: 60 * 1000 },
-    { label: '5m', durationMs: 5 * 60 * 1000 },
-    { label: '10m', durationMs: 10 * 60 * 1000 },
-    { label: '30m', durationMs: 30 * 60 * 1000 },
-    { label: '1h', durationMs: 60 * 60 * 1000 },
-    { label: '1d', durationMs: 24 * 60 * 60 * 1000 },
-    { label: '7d', durationMs: 7 * 24 * 60 * 60 * 1000 },
-    { label: '1m (month)', durationMs: 30 * 24 * 60 * 60 * 1000 },
-    { label: '1y', durationMs: 365 * 24 * 60 * 60 * 1000 }
-  ];
-  selectedResolution = this.resolutionOptions[0]; // default 1m
-
-  // Store historical readings for graphing
-  readingHistory: { timestamp: Date; az: number; el: number }[] = [];
-
 
   ngOnDestroy(): void {
     this.pollSubscription?.unsubscribe();
+  }
+
+  showCommandMessage(message: string): void {
+    this.commandMessage = message;
+    setTimeout(() => {
+      this.commandMessage = '';
+    }, 3000);
   }
 
   startPollingReadings(): void {
@@ -150,73 +89,11 @@ export class CamComponent {
       .subscribe({
         next: (reading: Reading) => {
           this.reading = reading;
-
-          // Check device online status (latest reading timestamp within 2 minutes)
-          const now = new Date();
-          const readingTime = new Date(reading.created_at ?? now.toISOString());
-          this.isDeviceOnline = (now.getTime() - readingTime.getTime()) < 2 * 60 * 1000;
-
-          if (this.isDeviceOnline) {
-            // Add to history and filter by selected resolution
-            this.readingHistory.push({ timestamp: readingTime, az: reading.azimuth_angle, el: reading.elevation_angle });
-            this.filterReadingHistory();
-            this.updateChartData();
-          }
         },
         error: (err) => {
           console.error('Error polling readings:', err);
-          this.isDeviceOnline = false;
         }
       });
-  }
-
-  filterReadingHistory(): void {
-    const now = new Date().getTime();
-    const cutoff = now - this.selectedResolution.durationMs;
-    this.readingHistory = this.readingHistory.filter(r => r.timestamp.getTime() >= cutoff);
-  }
-
-  updateChartData(): void {
-    // Prepare dataPoints for Azimuth and Elevation
-    const azDataPoints = this.readingHistory.map(r => ({ x: r.timestamp, y: r.az }));
-    const elDataPoints = this.readingHistory.map(r => ({ x: r.timestamp, y: r.el }));
-
-    // Update chart options data
-    this.chartOptions.data = [
-      {
-        type: "line",
-        name: "Azimuth",
-        showInLegend: true,
-        yValueFormatString: "#,###°",
-        dataPoints: azDataPoints
-      },
-      {
-        type: "line",
-        name: "Elevation",
-        showInLegend: true,
-        yValueFormatString: "#,###°",
-        dataPoints: elDataPoints
-      }
-    ];
-    if (this.selectedResolution.durationMs < 24 * 60 * 60 * 1000) {
-      this.chartOptions.axisX.valueFormatString = "HH:mm:ss";
-      this.chartOptions.axisX.intervalType = "minute";
-      this.chartOptions.axisX.interval = 1;
-    } else if (this.selectedResolution.durationMs < 30 * 24 * 60 * 60 * 1000) {
-      this.chartOptions.axisX.valueFormatString = "MMM dd";
-      this.chartOptions.axisX.intervalType = "day";
-      this.chartOptions.axisX.interval = 1;
-    } else {
-      this.chartOptions.axisX.valueFormatString = "MMM yyyy";
-      this.chartOptions.axisX.intervalType = "month";
-      this.chartOptions.axisX.interval = 1;
-    }
-  }
-
-  // Call this method on resolution change from the template
-  onResolutionChange(): void {
-    this.filterReadingHistory();
-    this.updateChartData();
   }
 
   loadReading(): void {
@@ -264,7 +141,6 @@ export class CamComponent {
     this.isPointing = false;
   }
 
-  // TODO: source selection - tracking command will be wired up in a later PR
   selectSource(source: Source): void {
     this.selectedSource = source;
     console.log('Selected source:', source);
@@ -287,8 +163,12 @@ export class CamComponent {
     const createCommand: CreateCommand = {
       user_id: getUser()?.id ?? 0,
       telescope_id: this.telescopeId ?? 0,
-      target_az_angle: this.azimuth_angle,
-      target_el_angle: this.elevation_angle
+      command_type: 'point',
+      point: {
+        target_az_angle: this.azimuth_angle,
+        target_el_angle: this.elevation_angle
+      },
+      track: null
     }
 
     this.commandService.postCommand(createCommand).subscribe({
@@ -296,6 +176,7 @@ export class CamComponent {
         console.log('Command sent successfully:', command);
         this.isLoading = false;
         this.isPointingPageActive = true;
+        this.showCommandMessage('Point command sent successfully.');
       },
       error: (error) => {
         console.error('Error sending command:', error);
@@ -369,8 +250,40 @@ export class CamComponent {
 
   startTracking(): void {
     if (!this.selectedSource) return;
-    console.log('Tracking source:', this.selectedSource);
-    // tracking command will be wired in a later PR
+
+    this.isLoading = true;
+    const createCommand: CreateCommand = {
+      user_id: getUser()?.id ?? 0,
+      telescope_id: this.telescopeId ?? 0,
+      command_type: 'track',
+      point: null,
+      track: {
+        source: {
+          name: this.selectedSource.name,
+          m_1: this.selectedSource.m_1,
+          m_2: this.selectedSource.m_2,
+          c_1: this.selectedSource.c_1,
+          c_2: this.selectedSource.c_2,
+          T_ra: this.selectedSource.T_ra,
+          A: this.selectedSource.A,
+          phi: this.selectedSource.phi,
+          D: this.selectedSource.D,
+          T_dec: this.selectedSource.T_dec
+        }
+      }
+    }
+
+    this.commandService.postCommand(createCommand).subscribe({
+      next: (command: Command) => {
+        console.log('Command sent successfully:', command);
+        this.isLoading = false;
+        this.showCommandMessage('Track command sent successfully.');
+      },
+      error: (error) => {
+        console.error('Error sending command:', error);
+        this.isLoading = false;
+      }
+    });
   }
 
   private updateKnobPosition(event: MouseEvent): void {

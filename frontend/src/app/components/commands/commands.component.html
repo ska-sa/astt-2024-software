@@ -12,8 +12,8 @@
         <th scope="col">ID</th>
         <th scope="col">User Email</th>
         <th scope="col">Telescope Name</th>
-        <th scope="col">Target Azimuth Angle</th>
-        <th scope="col">Target Elevation Angle</th>
+        <th scope="col">Command Type</th>
+        <th scope="col">Command Details</th>
         <th scope="col">Created At</th>
       </tr>
     </thead>
@@ -22,8 +22,8 @@
         <th scope="row"> {{i + 1}} </th>
         <td> {{ getUserEmailById(command.user_id) }} </td>
         <td> {{ getTelescopeNameById(command.telescope_id) }} </td>
-        <td> {{ command.target_az_angle }} &deg;</td>
-        <td> {{ command.target_el_angle }} &deg;</td>
+        <td> {{ command.command_type | titlecase }} </td>
+        <td> {{ getCommandDetails(command) }} </td>
         <td> {{ command.created_at | date: 'short' }} </td>
       </tr>
     </tbody>

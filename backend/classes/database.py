@@ -90,7 +90,116 @@ class Database:
             `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
         );
     """)
+        self.migrate_command_table()
+        self.migrate_source_table()
         self.conn.commit()
+
+    def migrate_command_table(self) -> None:
+        columns = self.cur.execute("PRAGMA table_info(command)").fetchall()
+        column_names = [column[1] for column in columns]
+
+        if "command_type" in column_names:
+            return
+
+        self.cur.executescript("""
+        ALTER TABLE command RENAME TO old_command;
+
+        CREATE TABLE command(
+            `id` INTEGER PRIMARY KEY AUTOINCREMENT,
+            `user_id` INTEGER NOT NULL,
+            `telescope_id` INTEGER NOT NULL,
+            `command_type` VARCHAR(50) NOT NULL,
+            `target_az_angle` DOUBLE DEFAULT NULL,
+            `target_el_angle` DOUBLE DEFAULT NULL,
+            `name` TEXT UNIQUE DEFAULT NULL,
+            `m_1` REAL DEFAULT NULL,
+            `m_2` REAL DEFAULT NULL,
+            `c_1` REAL DEFAULT NULL,
+            `c_2` REAL DEFAULT NULL,
+            `T_ra` REAL DEFAULT NULL,
+            `A` REAL DEFAULT NULL,
+            `phi` REAL DEFAULT NULL,
+            `D` REAL DEFAULT NULL,
+            `T_dec` REAL DEFAULT NULL,
+            `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+
+        INSERT INTO command (
+            id,
+            user_id,
+            telescope_id,
+            command_type,
+            target_az_angle,
+            target_el_angle,
+            created_at
+        )
+        SELECT
+            id,
+            user_id,
+            telescope_id,
+            'point',
+            target_az_angle,
+            target_el_angle,
+            created_at
+        FROM old_command;
+
+        DROP TABLE old_command;
+        """)
+
+    def migrate_source_table(self) -> None:
+        columns = self.cur.execute("PRAGMA table_info(source)").fetchall()
+        column_names = [column[1] for column in columns]
+
+        if "m_1" in column_names:
+            return
+
+        self.cur.executescript("""
+        ALTER TABLE source RENAME TO old_source;
+
+        CREATE TABLE source (
+            `id` INTEGER PRIMARY KEY AUTOINCREMENT,
+            `name` TEXT UNIQUE NOT NULL,
+            `m_1` REAL NOT NULL,
+            `m_2` REAL NOT NULL,
+            `c_1` REAL NOT NULL,
+            `c_2` REAL NOT NULL,
+            `T_ra` REAL NOT NULL,
+            `A` REAL NOT NULL,
+            `phi` REAL NOT NULL,
+            `D` REAL NOT NULL,
+            `T_dec` REAL NOT NULL,
+            `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+
+        INSERT INTO source (
+            id,
+            name,
+            m_1,
+            m_2,
+            c_1,
+            c_2,
+            T_ra,
+            A,
+            phi,
+            D,
+            T_dec
+        )
+        SELECT
+            id,
+            name,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+        FROM old_source;
+
+        DROP TABLE old_source;
+        """)
 
     def insert(self, table_name: str, data: dict) -> tuple[bool, list]:
         try:
